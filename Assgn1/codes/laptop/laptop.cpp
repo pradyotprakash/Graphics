@@ -16,8 +16,6 @@ glm::mat4 ortho_matrix;
 glm::mat4 modelview_matrix;
 GLuint uModelViewMatrix;
 
-glm::mat4 translation_matrix;
-
 std::string vs_file = "vs.glsl";
 std::string fs_file = "fs.glsl";
 
@@ -40,11 +38,19 @@ bool vec4equal(const glm::vec4 &vecA, const glm::vec4 &vecB)
 } 
 
 
-
-
-
 std::vector<pvec4> vertices;
 void initial_image(){
+
+
+
+  // vertices.push_back(pvec4(glm::vec4(-0.5, -0.5, 0.5, 1.0),glm::vec4(1,0,0,1)));
+  // vertices.push_back(pvec4(glm::vec4(-0.5, 0.5, 0.5, 1.0),glm::vec4(1,0,0,1)));
+  // vertices.push_back(pvec4(glm::vec4(0.5, 0.5, 0.5, 1.0),glm::vec4(1,0,0,1)));
+  // vertices.push_back(pvec4(glm::vec4(0.5, -0.5, 0.5, 1.0),glm::vec4(1,0,0,1)));
+  // vertices.push_back(pvec4(glm::vec4(-0.5, -0.5, -0.5, 1.0),glm::vec4(1,0,0,1)));
+  // vertices.push_back(pvec4(glm::vec4(-0.5, 0.5, -0.5, 1.0),glm::vec4(1,0,0,1)));
+  // vertices.push_back(pvec4(glm::vec4(0.5, 0.5, -0.5, 1.0),glm::vec4(1,0,0,1)));
+  // vertices.push_back(pvec4(glm::vec4(0.5, -0.5, -0.5, 1.0),glm::vec4(1,0,0,1)));
 
   // outer screen
   vertices.push_back(pvec4(glm::vec4(-0.75, -0.5, 0, 1), glm::vec4(0.0, 0.0, 1.0, 0.0)));
@@ -90,6 +96,14 @@ void initial_image(){
   vertices.push_back(pvec4(glm::vec4(0.15, -0.5 + 0.1, 1.1, 1), glm::vec4(0.0, 0.0, 0.0, 0.0)));
   vertices.push_back(pvec4(glm::vec4(-0.15, -0.5 + 0.1, 1.1, 1), glm::vec4(0.0, 0.0, 0.0, 0.0)));  
 
+  // display origin in red
+  // vertices.push_back(pvec4(glm::vec4(-0.01, -0.01, 0, 1), glm::vec4(0.0, 1.0, 0.0, 0.0)));
+  // vertices.push_back(pvec4(glm::vec4(-0.01, 0.01, 0, 1), glm::vec4(0.0, 1.0, 0.0, 0.0)));
+  // vertices.push_back(pvec4(glm::vec4(0.01, 0.01, 0, 1), glm::vec4(0.0, 1.0, 0.0, 0.0)));
+  // vertices.push_back(pvec4(glm::vec4(0.01, -0.01, 0, 1), glm::vec4(0.0, 1.0, 0.0, 0.0)));
+
+
+
   numOfPoints = vertices.size();
   
   for(int i=0;i<numOfPoints;++i){
@@ -113,13 +127,20 @@ void quad(int a, int b, int c, int d)
   v_colors_triangle.push_back(vertices[c].second); v_positions_triangle.push_back(vertices[c].first);
   v_colors_triangle.push_back(vertices[a].second); v_positions_triangle.push_back(vertices[a].first);
   v_colors_triangle.push_back(vertices[c].second); v_positions_triangle.push_back(vertices[c].first);
-  v_colors_triangle.push_back(vertices[d].second); v_positions_triangle.push_back(vertices[d].first);  
+  v_colors_triangle.push_back(vertices[d].second); v_positions_triangle.push_back(vertices[d].first);
 }
 
 void laptop(void)
 {
 
   initial_image();
+
+  // quad( 1, 0, 3, 2 );
+  //   quad( 2, 3, 7, 6 );
+  //   quad( 3, 0, 4, 7 );
+  //   quad( 6, 5, 1, 2 );
+  //   quad( 4, 5, 6, 7 );
+  //   quad( 5, 4, 0, 1 );
   
   // back of the screen
   quad(0, 1, 2, 3);
@@ -156,6 +177,9 @@ void laptop(void)
 
   // mouse
   quad(24, 25, 26, 27);
+
+  // origin
+  // quad(8, 9, 10, 11);
 }
 
 void initBuffersGL(void)
@@ -252,6 +276,21 @@ bool load_file(){
     file_load = 0;
 }
 
+void transform(){
+
+  glm::vec3 centroid = glm::vec3(vertex_sum.x/numOfPoints, vertex_sum.y/numOfPoints, vertex_sum.z/numOfPoints);
+
+  glm::mat4 tr1 = glm::translate(glm::mat4(1.0f), glm::vec3(-centroid.x, -centroid.y, -centroid.z));
+
+  glm::mat4 rot1 = glm::rotate(glm::mat4(1.0f), xrot, glm::vec3(1.0f,0.0f,0.0f));
+  glm::mat4 rot2 = glm::rotate(glm::mat4(1.0f), yrot, glm::vec3(0.0f,1.0f,0.0f));
+  glm::mat4 rot3 = glm::rotate(glm::mat4(1.0f), zrot, glm::vec3(0.0f,0.0f,1.0f));
+  
+  glm::mat4 tr2 = glm::translate(glm::mat4(1.0f), glm::vec3(centroid.x + xpos, centroid.y + ypos, centroid.z + zpos));
+  transformation_matrix = tr2*rot3*rot2*rot1*tr1;
+  
+}
+
 void renderGL(void)
 {
   if(file_write){
@@ -272,12 +311,9 @@ void renderGL(void)
 
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-  transformation_matrix = glm::rotate(glm::mat4(1.0f), xrot, glm::vec3(1.0f,0.0f,0.0f));
-  transformation_matrix = glm::rotate(transformation_matrix, yrot, glm::vec3(0.0f,1.0f,0.0f));
-  transformation_matrix = glm::rotate(transformation_matrix, zrot, glm::vec3(0.0f,0.0f,1.0f));
+  transform();
+
   ortho_matrix = glm::ortho(-2.0, 2.0, -2.0, 2.0, -2.0, 2.0);
-
-
 
   modelview_matrix = ortho_matrix * transformation_matrix;
 
@@ -353,8 +389,8 @@ int main(int argc, char** argv)
   csX75::initGL();
   initBuffersGL();
 
-  // Loop until the user closes the window
-  while (glfwWindowShouldClose(window) == 0)
+// Loop until the user closes the window
+while (glfwWindowShouldClose(window) == 0)
     {
        if(file_load){
         load_file();
@@ -372,6 +408,4 @@ int main(int argc, char** argv)
   glfwTerminate();
   return 0;
 }
-
-//-------------------------------------------------------------------------
 
