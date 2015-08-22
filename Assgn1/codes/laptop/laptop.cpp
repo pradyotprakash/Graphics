@@ -1,5 +1,6 @@
 #include "laptop.hpp"
 #include <utility>
+#include <fstream>
 
 #define pvec4 std::pair<glm::vec4, glm::vec4>
 
@@ -57,6 +58,18 @@ void initial_image(){
   vertices.push_back(pvec4(glm::vec4(0.75, -0.5, 1.5, 1), glm::vec4(.5, 0.0, 1.0, 0.0)));
   vertices.push_back(pvec4(glm::vec4(0.75, -0.5, 0.02, 1), glm::vec4(.5, 0.0, 1.0, 0.0)));
   vertices.push_back(pvec4(glm::vec4(-0.75, -0.5, 0.02, 1), glm::vec4(.5, 0.0, 1.0, 0.0)));
+
+  // keypad
+  vertices.push_back(pvec4(glm::vec4(-0.6, -0.5 + 0.1, 1.0, 1), glm::vec4(0.0, 0.0, 0.0, 0.0)));
+  vertices.push_back(pvec4(glm::vec4(0.6, -0.5 + 0.1, 1.0, 1), glm::vec4(0.0, 0.0, 0.0, 0.0)));
+  vertices.push_back(pvec4(glm::vec4(0.6, -0.5 + 0.1, 0.5, 1), glm::vec4(0.0, 0.0, 0.0, 0.0)));
+  vertices.push_back(pvec4(glm::vec4(-0.6, -0.5 + 0.1, 0.5, 1), glm::vec4(0.0, 0.0, 0.0, 0.0)));
+
+  // touchpad
+  vertices.push_back(pvec4(glm::vec4(-0.15, -0.5 + 0.1, 1.3, 1), glm::vec4(0.0, 0.0, 0.0, 0.0)));
+  vertices.push_back(pvec4(glm::vec4(0.15, -0.5 + 0.1, 1.3, 1), glm::vec4(0.0, 0.0, 0.0, 0.0)));
+  vertices.push_back(pvec4(glm::vec4(0.15, -0.5 + 0.1, 1.1, 1), glm::vec4(0.0, 0.0, 0.0, 0.0)));
+  vertices.push_back(pvec4(glm::vec4(-0.15, -0.5 + 0.1, 1.1, 1), glm::vec4(0.0, 0.0, 0.0, 0.0)));  
 }
 
 void line(int a, int b){
@@ -103,16 +116,23 @@ void laptop(void)
   quad(14, 15, 19, 18);
   quad(15, 12, 16, 19);
 
-  // // similar thing as above for the display
+  // similar thing as above for the display
   quad(0, 1, 5, 4);
   quad(1, 2, 6, 5);
   quad(2, 3, 7, 6);
   quad(3, 0, 4, 7);
+
+  // keypad
+  quad(20, 21, 22, 23);
+
+  // mouse
+  quad(24, 25, 26, 27);
 }
 
 void initBuffersGL(void)
 {
-  laptop();
+  if(!file_load)
+    laptop();
 
   glGenVertexArrays (1, &vao);
   glBindVertexArray (vao);
@@ -156,8 +176,52 @@ void initBuffersGL(void)
   uModelViewMatrix = glGetUniformLocation( shaderProgram, "uModelViewMatrix");
 }
 
+bool load_file(){
+    std::string file_name;
+    std::string s;
+
+    std::cout<<"Enter file name: ";
+    getline(std::cin, file_name);
+
+    std::ifstream inp(file_name.c_str());
+
+    std::vector<glm::vec4> coor;
+    std::vector<glm::vec4> color;
+    GLfloat a, b, c, d, e, f;
+
+    while(inp>>a>>b>>c>>d>>e>>f){
+      // std::cout<<a<<b<<c<<d<<e<<f<<std::endl;
+      coor.push_back(glm::vec4(a,b,c,1.0));
+      color.push_back(glm::vec4(d,e,f,0.0));
+    }
+    
+    swap(coor, v_positions_triangle);
+    swap(color, v_colors_triangle);
+
+    inp.close();
+
+    initBuffersGL();
+    file_load = 0;
+}
+
 void renderGL(void)
 {
+  if(file_write){
+    std::string file_name;
+    
+    std::cout << "Enter file name: ";
+    getline(std::cin, file_name);
+    
+    std::ofstream out(file_name.c_str());
+    
+    for(int i=0;i<v_positions_triangle.size();++i){
+      out<<v_positions_triangle[i].x<<" "<<v_positions_triangle[i].y<<" "<<v_positions_triangle[i].z<<" ";
+      out<<v_colors_triangle[i].x<<" "<<v_colors_triangle[i].y<<" "<<v_colors_triangle[i].z<<"\n";
+    }
+    out.close();
+    file_write = 0;
+  }
+
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
   rotation_matrix = glm::rotate(glm::mat4(1.0f), xrot, glm::vec3(1.0f,0.0f,0.0f));
@@ -171,12 +235,13 @@ void renderGL(void)
 
   // Draw 
   glDrawArrays(GL_TRIANGLES, 0, v_positions_triangle.size());
-  glDrawArrays(GL_LINES, 0, v_positions_line.size());
+  // glDrawArrays(GL_LINES, 0, v_positions_line.size());
   
 }
 
 int main(int argc, char** argv)
 {
+
   //! The pointer to the GLFW window
   GLFWwindow* window;
 
@@ -237,7 +302,9 @@ int main(int argc, char** argv)
   // Loop until the user closes the window
   while (glfwWindowShouldClose(window) == 0)
     {
-       
+       if(file_load){
+        load_file();
+       }
       // Render here
       renderGL();
 
