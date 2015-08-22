@@ -2,7 +2,6 @@
 
 extern GLfloat xrot, yrot, zrot, xpos, ypos, zpos;
 extern GLint file_load, file_write, centroid_translate;
-extern GLfloat change_along_x, change_along_y, change_along_z;
 
 namespace csX75
 {
@@ -36,7 +35,7 @@ namespace csX75
   void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
   {
     file_write = 0; file_load = 0; centroid_translate = 0; 
-    change_along_y = 0; change_along_x = 0; change_along_z = 0;
+    
     //!Close the window if the ESC key was pressed
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
       glfwSetWindowShouldClose(window, GL_TRUE);
@@ -65,22 +64,22 @@ namespace csX75
       file_load = 1;
     }
     else if(key == GLFW_KEY_W && action == GLFW_PRESS){
-      ypos += 0.2; change_along_y = 0.2;
+      ypos += 0.2; 
     }
     else if(key == GLFW_KEY_S && action == GLFW_PRESS){
-      ypos -= 0.2; change_along_y = -0.2;
+      ypos -= 0.2; 
     }
     else if(key == GLFW_KEY_A && action == GLFW_PRESS){
-      xpos -= 0.2; change_along_x = -0.2;
+      xpos -= 0.2; 
     }
     else if(key == GLFW_KEY_D && action == GLFW_PRESS){
-      xpos += 0.2; change_along_x = 0.2;
+      xpos += 0.2; 
     }
     else if(key == GLFW_KEY_Z && action == GLFW_PRESS){
-      zpos += 0.2; change_along_z = 0.2;
+      zpos += 0.2; 
     }
     else if(key == GLFW_KEY_X && action == GLFW_PRESS){
-      zpos -= 0.2; change_along_z = -0.2;
+      zpos -= 0.2; 
     }
     else if(key == GLFW_KEY_R && action == GLFW_PRESS){
       centroid_translate = 1;
