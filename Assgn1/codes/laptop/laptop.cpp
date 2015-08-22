@@ -26,7 +26,8 @@ std::vector<glm::vec4> v_colors_line;
 std::vector<glm::vec4> v_positions_line;
 
 std::vector<glm::vec4> distinct_vertices;
-glm::vec4 vertex_sum;
+glm::vec3 vertex_sum;
+glm::vec3 centroid;
 
 bool vec4equal(const glm::vec4 &vecA, const glm::vec4 &vecB) 
 { 
@@ -113,6 +114,8 @@ void initial_image(){
     vertex_sum.y += distinct_vertices[i].y;
     vertex_sum.z += distinct_vertices[i].z;
   }
+
+  centroid = glm::vec3(vertex_sum.x/numOfPoints, vertex_sum.y/numOfPoints, vertex_sum.z/numOfPoints);
 }
 
 void line(int a, int b){
@@ -184,7 +187,7 @@ void laptop(void)
 
 void initBuffersGL(void)
 {
-  if(!file_load)
+  if(!file_load && !centroid_translate)
     laptop();
 
   glGenVertexArrays (1, &vao);
@@ -195,17 +198,13 @@ void initBuffersGL(void)
 
   int triangle_pos = v_positions_triangle.size()*glmVec4Size;
   int triangle_color = v_colors_triangle.size()*glmVec4Size;
-  int line_pos = v_positions_line.size()*glmVec4Size;
-  int line_color = v_colors_line.size()*glmVec4Size;
-
-  int totalSpace = triangle_pos + triangle_color + line_pos + line_color;
+  
+  int totalSpace = triangle_pos + triangle_color;
 
   glBufferData (GL_ARRAY_BUFFER, totalSpace, NULL, GL_STATIC_DRAW);
   glBufferSubData( GL_ARRAY_BUFFER, 0, triangle_pos, &v_positions_triangle[0] );
   glBufferSubData( GL_ARRAY_BUFFER, triangle_pos, triangle_color, &v_colors_triangle[0] );
-  glBufferSubData( GL_ARRAY_BUFFER, triangle_pos+triangle_color, line_pos, &v_positions_line[0] );
-  glBufferSubData( GL_ARRAY_BUFFER, triangle_pos+triangle_color+line_pos, line_color, &v_colors_line[0] );
-
+  
   // Load shaders and use the resulting shader program
   std::string vertex_shader_file(vs_file);
   std::string fragment_shader_file(fs_file);
@@ -229,7 +228,7 @@ void initBuffersGL(void)
   uModelViewMatrix = glGetUniformLocation( shaderProgram, "uModelViewMatrix");
 }
 
-bool load_file(){
+void load_from_file(){
     std::string file_name;
     std::string s;
 
@@ -243,7 +242,7 @@ bool load_file(){
     GLfloat a, b, c, d, e, f;
 
     distinct_vertices.clear();
-    vertex_sum = glm::vec4(0,0,0,0);
+    vertex_sum = glm::vec3(0,0,0);
     numOfPoints = 0;
 
     while(inp>>a>>b>>c>>d>>e>>f){
@@ -264,8 +263,9 @@ bool load_file(){
         vertex_sum.x += point.x, vertex_sum.y += point.y, vertex_sum.z += point.z;
         numOfPoints++;
       }
-
     }
+
+    centroid = glm::vec3(vertex_sum.x/numOfPoints, vertex_sum.y/numOfPoints, vertex_sum.z/numOfPoints);
     
     swap(coor, v_positions_triangle);
     swap(color, v_colors_triangle);
@@ -278,8 +278,6 @@ bool load_file(){
 
 void transform(){
 
-  glm::vec3 centroid = glm::vec3(vertex_sum.x/numOfPoints, vertex_sum.y/numOfPoints, vertex_sum.z/numOfPoints);
-
   glm::mat4 tr1 = glm::translate(glm::mat4(1.0f), glm::vec3(-centroid.x, -centroid.y, -centroid.z));
 
   glm::mat4 rot1 = glm::rotate(glm::mat4(1.0f), xrot, glm::vec3(1.0f,0.0f,0.0f));
@@ -291,9 +289,7 @@ void transform(){
   
 }
 
-void renderGL(void)
-{
-  if(file_write){
+void write_to_file(){
     std::string file_name;
     
     std::cout << "Enter file name: ";
@@ -307,8 +303,26 @@ void renderGL(void)
     }
     out.close();
     file_write = 0;
+}
+
+void set_centroid_as_origin(){
+  std::vector<glm::vec4> coor;
+
+  glm::mat4 tr = glm::translate(glm::mat4(1.0f), glm::vec3(-centroid.x, -centroid.y, -centroid.z));
+  glm::mat4 trans = tr*transformation_matrix;
+
+  for(int i=0;i<v_positions_triangle.size();++i){
+    glm::vec4 final = trans*v_positions_triangle[i];
+    coor.push_back(final);
   }
 
+  swap(coor, v_positions_triangle);
+  initBuffersGL();
+}
+
+void renderGL(void)
+{
+  
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
   transform();
@@ -330,7 +344,8 @@ int main(int argc, char** argv)
 
   numOfPoints = 0;
 
-  vertex_sum.x = vertex_sum.y = vertex_sum.z = 0.0f;
+  vertex_sum = glm::vec3(0,0,0);
+  centroid = glm::vec3(0,0,0);
 
   //! The pointer to the GLFW window
   GLFWwindow* window;
@@ -393,7 +408,15 @@ int main(int argc, char** argv)
 while (glfwWindowShouldClose(window) == 0)
     {
        if(file_load){
-        load_file();
+        load_from_file();
+       }
+
+       if(file_write){
+        write_to_file();
+       }
+
+       if(centroid_translate){
+        set_centroid_as_origin();
        }
       // Render here
       renderGL();
