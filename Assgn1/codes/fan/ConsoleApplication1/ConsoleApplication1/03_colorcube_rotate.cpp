@@ -199,7 +199,7 @@ void initBuffersGL(void)
 {
   colorcube();
   DrawCircle(0.0, 0.0, 0.075, 0.15, 1000);
-  DrawCylinder(0.3, 0.15, 1000);
+  DrawCylinder(0.10, 0.15, 1000);
   //Ask GL for a Vertex Attribute Object (vao)
   glGenVertexArrays (1, &vao);
   //Set it as the current array to be used by binding it
