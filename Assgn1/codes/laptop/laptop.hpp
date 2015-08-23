@@ -20,6 +20,8 @@ GLfloat xpos=0.0,ypos=0.0,zpos=0.0;
 GLfloat xrot=0.0,yrot=0.0,zrot=0.0;
 // File read write parameters
 GLboolean file_write = 0, file_load = 0, centroid_translate = 0;
+// modelling/inspection control
+GLboolean modelling_enabled = 0, inspection_enabled = 1;
 
 //Running variable to toggle culling on/off
 bool enable_culling=true;
