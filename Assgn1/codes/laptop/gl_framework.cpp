@@ -1,7 +1,8 @@
 #include "gl_framework.hpp"
 
 extern GLfloat xrot, yrot, zrot, xpos, ypos, zpos;
-extern GLint file_load, file_write, centroid_translate;
+extern GLboolean file_load, file_write, centroid_translate;
+extern GLboolean modelling_enabled, inspection_enabled;
 
 namespace csX75
 {
@@ -83,6 +84,12 @@ namespace csX75
     }
     else if(key == GLFW_KEY_R && action == GLFW_PRESS){
       centroid_translate = 1;
+    }
+    else if(key == GLFW_KEY_M && action == GLFW_PRESS){
+      modelling_enabled = 1; inspection_enabled = 0;
+    }
+    else if(key == GLFW_KEY_I && action == GLFW_PRESS){
+      modelling_enabled = 0; inspection_enabled = 1;
     }
   }
 };
