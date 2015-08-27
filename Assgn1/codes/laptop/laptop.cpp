@@ -9,9 +9,11 @@ const int window_x = 512;
 const int window_y = 512;
 
 GLuint shaderProgram;
-GLuint vbo, vao;
+GLuint vao;
+GLuint vbo_original, vbo_temp;
 
 unsigned int numOfPoints;
+bool del = false;
 
 glm::mat4 transformation_matrix;
 glm::mat4 ortho_matrix;
@@ -21,8 +23,11 @@ GLuint uModelViewMatrix;
 std::string vs_file = "vs.glsl";
 std::string fs_file = "fs.glsl";
 
-std::vector<glm::vec4> v_positions_triangle;
-std::vector<glm::vec4> v_colors_triangle;
+std::vector<glm::vec4> v_positions_original;
+std::vector<glm::vec4> v_colors_original;
+
+std::vector<glm::vec4> v_positions_temp;
+std::vector<glm::vec4> v_colors_temp;
 
 std::vector<glm::vec4> v_added_position;
 std::vector<glm::vec4> v_positions_line;
@@ -31,11 +36,10 @@ std::vector<glm::vec4> distinct_vertices;
 glm::vec3 vertex_sum;
 glm::vec3 centroid;
 
-bool vec4equal(const glm::vec4 &vecA, const glm::vec4 &vecB) 
-{ 
- const double epsilion = 0.00001;  // choose something apprpriate.
+bool vec4equal(const glm::vec4 &vecA, const glm::vec4 &vecB){ 
+	const double epsilion = 0.00001;  // choose something apprpriate.
 
- return fabs(vecA[0] -vecB[0]) < epsilion   
+	return fabs(vecA[0] -vecB[0]) < epsilion   
 	      && fabs(vecA[1] -vecB[1]) < epsilion   
 	      && fabs(vecA[2] -vecB[2]) < epsilion; 
 } 
@@ -44,186 +48,202 @@ bool vec4equal(const glm::vec4 &vecA, const glm::vec4 &vecB)
 std::vector<pvec4> vertices;
 void initial_image(){
 
+	// outer screen
+	vertices.push_back(pvec4(glm::vec4(-0.75, -0.5, 0, 1), glm::vec4(0.0, 0.0, 1.0, 0.0)));
+	vertices.push_back(pvec4(glm::vec4(0.75, -0.5, 0, 1), glm::vec4(0.0, 0.0, 1.0, 0.0)));
+	vertices.push_back(pvec4(glm::vec4(0.75, 0.5, 0, 1), glm::vec4(0.0, 0.0, 1.0, 0.0)));
+	vertices.push_back(pvec4(glm::vec4(-0.75, 0.5, 0, 1), glm::vec4(0.0, 0.0, 1.0, 0.0)));
 
+	// on z-axis laptop
 
-// vertices.push_back(pvec4(glm::vec4(-0.5, -0.5, 0.5, 1.0),glm::vec4(1,0,0,1)));
-// vertices.push_back(pvec4(glm::vec4(-0.5, 0.5, 0.5, 1.0),glm::vec4(1,0,0,1)));
-// vertices.push_back(pvec4(glm::vec4(0.5, 0.5, 0.5, 1.0),glm::vec4(1,0,0,1)));
-// vertices.push_back(pvec4(glm::vec4(0.5, -0.5, 0.5, 1.0),glm::vec4(1,0,0,1)));
-// vertices.push_back(pvec4(glm::vec4(-0.5, -0.5, -0.5, 1.0),glm::vec4(1,0,0,1)));
-// vertices.push_back(pvec4(glm::vec4(-0.5, 0.5, -0.5, 1.0),glm::vec4(1,0,0,1)));
-// vertices.push_back(pvec4(glm::vec4(0.5, 0.5, -0.5, 1.0),glm::vec4(1,0,0,1)));
-// vertices.push_back(pvec4(glm::vec4(0.5, -0.5, -0.5, 1.0),glm::vec4(1,0,0,1)));
+	// outer rectangle
+	vertices.push_back(pvec4(glm::vec4(-0.75, -0.5, 0.02, 1), glm::vec4(0.0, 0.0, 0.0, 0.0)));
+	vertices.push_back(pvec4(glm::vec4(0.75, -0.5, 0.02, 1), glm::vec4(0.0, 0.0, 0.0, 0.0)));
+	vertices.push_back(pvec4(glm::vec4(0.75, 0.5, 0.02, 1), glm::vec4(0.0, 0.0, 0.0, 0.0)));
+	vertices.push_back(pvec4(glm::vec4(-0.75, 0.5, 0.02, 1), glm::vec4(0.0, 0.0, 0.0, 0.0)));
 
-// outer screen
-vertices.push_back(pvec4(glm::vec4(-0.75, -0.5, 0, 1), glm::vec4(0.0, 0.0, 1.0, 0.0)));
-vertices.push_back(pvec4(glm::vec4(0.75, -0.5, 0, 1), glm::vec4(0.0, 0.0, 1.0, 0.0)));
-vertices.push_back(pvec4(glm::vec4(0.75, 0.5, 0, 1), glm::vec4(0.0, 0.0, 1.0, 0.0)));
-vertices.push_back(pvec4(glm::vec4(-0.75, 0.5, 0, 1), glm::vec4(0.0, 0.0, 1.0, 0.0)));
+	// inner rectangle
+	vertices.push_back(pvec4(glm::vec4(-0.6, -0.4, 0.02, 1), glm::vec4(1.0, 1.0, 1.0, 0.0)));
+	vertices.push_back(pvec4(glm::vec4(0.6, -0.4, 0.02, 1), glm::vec4(1.0, 1.0, 1.0, 0.0)));
+	vertices.push_back(pvec4(glm::vec4(0.6, 0.4, 0.02, 1), glm::vec4(1.0, 1.0, 1.0, 0.0)));
+	vertices.push_back(pvec4(glm::vec4(-0.6, 0.4, 0.02, 1), glm::vec4(1.0, 1.0, 1.0, 0.0)));
 
-// on z-axis laptop
+	// upper base of the laptop
+	vertices.push_back(pvec4(glm::vec4(-0.75, -0.5 + 0.1, 1.5, 1), glm::vec4(0.5, 0.0, 1.0, 0.0)));
+	vertices.push_back(pvec4(glm::vec4(0.75, -0.5 + 0.1, 1.5, 1), glm::vec4(0.5, 0.0, 1.0, 0.0)));
+	vertices.push_back(pvec4(glm::vec4(0.75, -0.5 + 0.1, 0.02, 1), glm::vec4(0.5, 0.0, 1.0, 0.0)));
+	vertices.push_back(pvec4(glm::vec4(-0.75, -0.5 + 0.1, 0.02, 1), glm::vec4(0.5, 0.0, 1.0, 0.0)));
 
-// outer rectangle
-vertices.push_back(pvec4(glm::vec4(-0.75, -0.5, 0.02, 1), glm::vec4(0.0, 0.0, 0.0, 0.0)));
-vertices.push_back(pvec4(glm::vec4(0.75, -0.5, 0.02, 1), glm::vec4(0.0, 0.0, 0.0, 0.0)));
-vertices.push_back(pvec4(glm::vec4(0.75, 0.5, 0.02, 1), glm::vec4(0.0, 0.0, 0.0, 0.0)));
-vertices.push_back(pvec4(glm::vec4(-0.75, 0.5, 0.02, 1), glm::vec4(0.0, 0.0, 0.0, 0.0)));
+	// lower base of the laptop
+	vertices.push_back(pvec4(glm::vec4(-0.75, -0.5, 1.5, 1), glm::vec4(.5, 0.0, 1.0, 0.0)));
+	vertices.push_back(pvec4(glm::vec4(0.75, -0.5, 1.5, 1), glm::vec4(.5, 0.0, 1.0, 0.0)));
+	vertices.push_back(pvec4(glm::vec4(0.75, -0.5, 0.02, 1), glm::vec4(.5, 0.0, 1.0, 0.0)));
+	vertices.push_back(pvec4(glm::vec4(-0.75, -0.5, 0.02, 1), glm::vec4(.5, 0.0, 1.0, 0.0)));
 
-// inner rectangle
-vertices.push_back(pvec4(glm::vec4(-0.6, -0.4, 0.02, 1), glm::vec4(1.0, 1.0, 1.0, 0.0)));
-vertices.push_back(pvec4(glm::vec4(0.6, -0.4, 0.02, 1), glm::vec4(1.0, 1.0, 1.0, 0.0)));
-vertices.push_back(pvec4(glm::vec4(0.6, 0.4, 0.02, 1), glm::vec4(1.0, 1.0, 1.0, 0.0)));
-vertices.push_back(pvec4(glm::vec4(-0.6, 0.4, 0.02, 1), glm::vec4(1.0, 1.0, 1.0, 0.0)));
+	// keypad
+	vertices.push_back(pvec4(glm::vec4(-0.6, -0.5 + 0.1, 1.0, 1), glm::vec4(0.0, 0.0, 0.0, 0.0)));
+	vertices.push_back(pvec4(glm::vec4(0.6, -0.5 + 0.1, 1.0, 1), glm::vec4(0.0, 0.0, 0.0, 0.0)));
+	vertices.push_back(pvec4(glm::vec4(0.6, -0.5 + 0.1, 0.5, 1), glm::vec4(0.0, 0.0, 0.0, 0.0)));
+	vertices.push_back(pvec4(glm::vec4(-0.6, -0.5 + 0.1, 0.5, 1), glm::vec4(0.0, 0.0, 0.0, 0.0)));
 
-// upper base of the laptop
-vertices.push_back(pvec4(glm::vec4(-0.75, -0.5 + 0.1, 1.5, 1), glm::vec4(0.5, 0.0, 1.0, 0.0)));
-vertices.push_back(pvec4(glm::vec4(0.75, -0.5 + 0.1, 1.5, 1), glm::vec4(0.5, 0.0, 1.0, 0.0)));
-vertices.push_back(pvec4(glm::vec4(0.75, -0.5 + 0.1, 0.02, 1), glm::vec4(0.5, 0.0, 1.0, 0.0)));
-vertices.push_back(pvec4(glm::vec4(-0.75, -0.5 + 0.1, 0.02, 1), glm::vec4(0.5, 0.0, 1.0, 0.0)));
+	// touchpad
+	vertices.push_back(pvec4(glm::vec4(-0.15, -0.5 + 0.1, 1.3, 1), glm::vec4(0.0, 0.0, 0.0, 0.0)));
+	vertices.push_back(pvec4(glm::vec4(0.15, -0.5 + 0.1, 1.3, 1), glm::vec4(0.0, 0.0, 0.0, 0.0)));
+	vertices.push_back(pvec4(glm::vec4(0.15, -0.5 + 0.1, 1.1, 1), glm::vec4(0.0, 0.0, 0.0, 0.0)));
+	vertices.push_back(pvec4(glm::vec4(-0.15, -0.5 + 0.1, 1.1, 1), glm::vec4(0.0, 0.0, 0.0, 0.0)));  
 
-// lower base of the laptop
-vertices.push_back(pvec4(glm::vec4(-0.75, -0.5, 1.5, 1), glm::vec4(.5, 0.0, 1.0, 0.0)));
-vertices.push_back(pvec4(glm::vec4(0.75, -0.5, 1.5, 1), glm::vec4(.5, 0.0, 1.0, 0.0)));
-vertices.push_back(pvec4(glm::vec4(0.75, -0.5, 0.02, 1), glm::vec4(.5, 0.0, 1.0, 0.0)));
-vertices.push_back(pvec4(glm::vec4(-0.75, -0.5, 0.02, 1), glm::vec4(.5, 0.0, 1.0, 0.0)));
-
-// keypad
-vertices.push_back(pvec4(glm::vec4(-0.6, -0.5 + 0.1, 1.0, 1), glm::vec4(0.0, 0.0, 0.0, 0.0)));
-vertices.push_back(pvec4(glm::vec4(0.6, -0.5 + 0.1, 1.0, 1), glm::vec4(0.0, 0.0, 0.0, 0.0)));
-vertices.push_back(pvec4(glm::vec4(0.6, -0.5 + 0.1, 0.5, 1), glm::vec4(0.0, 0.0, 0.0, 0.0)));
-vertices.push_back(pvec4(glm::vec4(-0.6, -0.5 + 0.1, 0.5, 1), glm::vec4(0.0, 0.0, 0.0, 0.0)));
-
-// touchpad
-vertices.push_back(pvec4(glm::vec4(-0.15, -0.5 + 0.1, 1.3, 1), glm::vec4(0.0, 0.0, 0.0, 0.0)));
-vertices.push_back(pvec4(glm::vec4(0.15, -0.5 + 0.1, 1.3, 1), glm::vec4(0.0, 0.0, 0.0, 0.0)));
-vertices.push_back(pvec4(glm::vec4(0.15, -0.5 + 0.1, 1.1, 1), glm::vec4(0.0, 0.0, 0.0, 0.0)));
-vertices.push_back(pvec4(glm::vec4(-0.15, -0.5 + 0.1, 1.1, 1), glm::vec4(0.0, 0.0, 0.0, 0.0)));  
-
-// display origin in red
-// vertices.push_back(pvec4(glm::vec4(-0.01, -0.01, 0, 1), glm::vec4(0.0, 1.0, 0.0, 0.0)));
-// vertices.push_back(pvec4(glm::vec4(-0.01, 0.01, 0, 1), glm::vec4(0.0, 1.0, 0.0, 0.0)));
-// vertices.push_back(pvec4(glm::vec4(0.01, 0.01, 0, 1), glm::vec4(0.0, 1.0, 0.0, 0.0)));
-// vertices.push_back(pvec4(glm::vec4(0.01, -0.01, 0, 1), glm::vec4(0.0, 1.0, 0.0, 0.0)));
+	// display origin in red
+	// vertices.push_back(pvec4(glm::vec4(-0.01, -0.01, 0, 1), glm::vec4(0.0, 1.0, 0.0, 0.0)));
+	// vertices.push_back(pvec4(glm::vec4(-0.01, 0.01, 0, 1), glm::vec4(0.0, 1.0, 0.0, 0.0)));
+	// vertices.push_back(pvec4(glm::vec4(0.01, 0.01, 0, 1), glm::vec4(0.0, 1.0, 0.0, 0.0)));
+	// vertices.push_back(pvec4(glm::vec4(0.01, -0.01, 0, 1), glm::vec4(0.0, 1.0, 0.0, 0.0)));
 
 
 
-numOfPoints = vertices.size();
+	numOfPoints = vertices.size();
 
-for(int i=0;i<numOfPoints;++i){
-	distinct_vertices.push_back(vertices[i].first);
+	for(int i=0;i<numOfPoints;++i){
+		distinct_vertices.push_back(vertices[i].first);
 
-	vertex_sum.x += distinct_vertices[i].x;
-	vertex_sum.y += distinct_vertices[i].y;
-	vertex_sum.z += distinct_vertices[i].z;
-}
+		vertex_sum.x += distinct_vertices[i].x;
+		vertex_sum.y += distinct_vertices[i].y;
+		vertex_sum.z += distinct_vertices[i].z;
+	}
 
-centroid = glm::vec3(vertex_sum.x/numOfPoints, vertex_sum.y/numOfPoints, vertex_sum.z/numOfPoints);
+	centroid = glm::vec3(vertex_sum.x/numOfPoints, vertex_sum.y/numOfPoints, vertex_sum.z/numOfPoints);
 }
 
 
 void quad(int a, int b, int c, int d)
 {
-v_colors_triangle.push_back(vertices[a].second); v_positions_triangle.push_back(vertices[a].first);
-v_colors_triangle.push_back(vertices[b].second); v_positions_triangle.push_back(vertices[b].first);
-v_colors_triangle.push_back(vertices[c].second); v_positions_triangle.push_back(vertices[c].first);
-v_colors_triangle.push_back(vertices[a].second); v_positions_triangle.push_back(vertices[a].first);
-v_colors_triangle.push_back(vertices[c].second); v_positions_triangle.push_back(vertices[c].first);
-v_colors_triangle.push_back(vertices[d].second); v_positions_triangle.push_back(vertices[d].first);
+	v_colors_original.push_back(vertices[a].second); v_positions_original.push_back(vertices[a].first);
+	v_colors_original.push_back(vertices[b].second); v_positions_original.push_back(vertices[b].first);
+	v_colors_original.push_back(vertices[c].second); v_positions_original.push_back(vertices[c].first);
+	v_colors_original.push_back(vertices[a].second); v_positions_original.push_back(vertices[a].first);
+	v_colors_original.push_back(vertices[c].second); v_positions_original.push_back(vertices[c].first);
+	v_colors_original.push_back(vertices[d].second); v_positions_original.push_back(vertices[d].first);
 }
 
 void laptop(void)
 {
 
-initial_image();
+	initial_image();
 
-// quad( 1, 0, 3, 2 );
-//   quad( 2, 3, 7, 6 );
-//   quad( 3, 0, 4, 7 );
-//   quad( 6, 5, 1, 2 );
-//   quad( 4, 5, 6, 7 );
-//   quad( 5, 4, 0, 1 );
+	// quad( 1, 0, 3, 2 );
+	//   quad( 2, 3, 7, 6 );
+	//   quad( 3, 0, 4, 7 );
+	//   quad( 6, 5, 1, 2 );
+	//   quad( 4, 5, 6, 7 );
+	//   quad( 5, 4, 0, 1 );
 
-// back of the screen
-quad(0, 1, 2, 3);
+	// back of the screen
+	quad(0, 1, 2, 3);
 
-// 4 outer trapezoids of the display
-quad(4, 5, 9, 9);
-quad(5, 6, 9, 10);
-quad(6, 7, 10, 11);
-quad(7, 4, 11, 8);
+	// 4 outer trapezoids of the display
+	quad(4, 5, 9, 9);
+	quad(5, 6, 9, 10);
+	quad(6, 7, 10, 11);
+	quad(7, 4, 11, 8);
 
-// actual inner display
-quad(8, 9, 10, 11);
+	// actual inner display
+	quad(8, 9, 10, 11);
 
-// keypad surface
-quad(12, 13, 14, 15);
-// face opposite to the keypad
-quad(16, 17, 18, 19);
+	// keypad surface
+	quad(12, 13, 14, 15);
+	// face opposite to the keypad
+	quad(16, 17, 18, 19);
 
-// completing the rectangles encompassing the space between the upper
-// and the lower surface
-quad(12, 13, 17, 16);
-quad(13, 14, 18, 17);
-quad(14, 15, 19, 18);
-quad(15, 12, 16, 19);
+	// completing the rectangles encompassing the space between the upper
+	// and the lower surface
+	quad(12, 13, 17, 16);
+	quad(13, 14, 18, 17);
+	quad(14, 15, 19, 18);
+	quad(15, 12, 16, 19);
 
-// similar thing as above for the display
-quad(0, 1, 5, 4);
-quad(1, 2, 6, 5);
-quad(2, 3, 7, 6);
-quad(3, 0, 4, 7);
+	// similar thing as above for the display
+	quad(0, 1, 5, 4);
+	quad(1, 2, 6, 5);
+	quad(2, 3, 7, 6);
+	quad(3, 0, 4, 7);
 
-// keypad
-quad(20, 21, 22, 23);
+	// keypad
+	quad(20, 21, 22, 23);
 
-// mouse
-quad(24, 25, 26, 27);
+	// mouse
+	quad(24, 25, 26, 27);
 
-// origin
-// quad(8, 9, 10, 11);
+	// origin
+	// quad(8, 9, 10, 11);
 }
 
-void initBuffersGL(void)
+
+void createShader(){
+	std::string vertex_shader_file(vs_file);
+	std::string fragment_shader_file(fs_file);
+
+	std::vector<GLuint> shaderList;
+	shaderList.push_back(csX75::LoadShaderGL(GL_VERTEX_SHADER, vertex_shader_file));
+	shaderList.push_back(csX75::LoadShaderGL(GL_FRAGMENT_SHADER, fragment_shader_file));
+
+	shaderProgram = csX75::CreateProgramGL(shaderList);
+
+	// Load shaders and use the resulting shader program
+	glUseProgram( shaderProgram );
+}
+
+
+void load_into_buffer(std::vector<glm::vec4> &v_position_data, std::vector<glm::vec4> &v_color_data, GLuint &vbo){
+	
+	glBindBuffer (GL_ARRAY_BUFFER, vbo);
+
+	int vertex_array_size = v_position_data.size()*glmVec4Size;
+	int color_array_size = v_color_data.size()*glmVec4Size;
+
+	int totalSpace = vertex_array_size + color_array_size;
+
+	glBufferData (GL_ARRAY_BUFFER, totalSpace, NULL, GL_STATIC_DRAW);
+	glBufferSubData( GL_ARRAY_BUFFER, 0, vertex_array_size, &v_position_data[0] );
+	glBufferSubData( GL_ARRAY_BUFFER, vertex_array_size, color_array_size, &v_color_data[0] );
+
+	// set up vertex arrays
+	GLuint vPosition = glGetAttribLocation( shaderProgram, "vPosition" );
+	glEnableVertexAttribArray( vPosition );
+	glVertexAttribPointer( vPosition, 4, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(0) );
+
+	GLuint vColor = glGetAttribLocation( shaderProgram, "vColor" ); 
+	glEnableVertexAttribArray( vColor );
+	glVertexAttribPointer( vColor, 4, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(v_position_data.size()*glmVec4Size) );
+}
+
+void initBuffersGL()
 {
-if(!file_load && !centroid_translate)
-	laptop();
+	if(!file_load && !centroid_translate)
+		laptop();
 
-glGenVertexArrays (1, &vao);
-glBindVertexArray (vao);
+	glGenVertexArrays (1, &vao);
+	glBindVertexArray (vao);
+	
+	glGenBuffers (1, &vbo_original);
+	// glGenBuffers (1, &vbo_temp);
 
-glGenBuffers (1, &vbo);
-glBindBuffer (GL_ARRAY_BUFFER, vbo);
+	// load_into_buffer(v_positions_original, v_colors_original, vbo_original);
+	
+	// load_into_buffer(v_positions_temp, v_colors_temp, vbo_temp);
 
-int triangle_pos = v_positions_triangle.size()*glmVec4Size;
-int triangle_color = v_colors_triangle.size()*glmVec4Size;
+	std::vector<glm::vec4> positions_added;
+	positions_added.reserve(v_positions_original.size() + v_positions_temp.size());
+	positions_added.insert(positions_added.end(), v_positions_original.begin(), v_positions_original.end());
+	positions_added.insert(positions_added.end(), v_positions_temp.begin(), v_positions_temp.end());
 
-int totalSpace = triangle_pos + triangle_color;
+	std::vector<glm::vec4> colors_added;
+	colors_added.reserve(v_colors_original.size() + v_colors_temp.size());
+	colors_added.insert(colors_added.end(), v_colors_original.begin(), v_colors_original.end());
+	colors_added.insert(colors_added.end(), v_colors_temp.begin(), v_colors_temp.end());
 
-glBufferData (GL_ARRAY_BUFFER, totalSpace, NULL, GL_STATIC_DRAW);
-glBufferSubData( GL_ARRAY_BUFFER, 0, triangle_pos, &v_positions_triangle[0] );
-glBufferSubData( GL_ARRAY_BUFFER, triangle_pos, triangle_color, &v_colors_triangle[0] );
+	load_into_buffer(positions_added, colors_added, vbo_original);
 
-// Load shaders and use the resulting shader program
-std::string vertex_shader_file(vs_file);
-std::string fragment_shader_file(fs_file);
-
-std::vector<GLuint> shaderList;
-shaderList.push_back(csX75::LoadShaderGL(GL_VERTEX_SHADER, vertex_shader_file));
-shaderList.push_back(csX75::LoadShaderGL(GL_FRAGMENT_SHADER, fragment_shader_file));
-
-shaderProgram = csX75::CreateProgramGL(shaderList);
-glUseProgram( shaderProgram );
-
-// set up vertex arrays
-GLuint vPosition = glGetAttribLocation( shaderProgram, "vPosition" );
-glEnableVertexAttribArray( vPosition );
-glVertexAttribPointer( vPosition, 4, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(0) );
-
-GLuint vColor = glGetAttribLocation( shaderProgram, "vColor" ); 
-glEnableVertexAttribArray( vColor );
-glVertexAttribPointer( vColor, 4, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(glmVec4Size*v_positions_triangle.size()) );
-
-uModelViewMatrix = glGetUniformLocation( shaderProgram, "uModelViewMatrix");
+	
+	uModelViewMatrix = glGetUniformLocation( shaderProgram, "uModelViewMatrix");
 }
 
 void load_from_file(){
@@ -246,29 +266,32 @@ void load_from_file(){
 	numOfPoints = 0;
 
 	while(inp>>a>>b>>c>>d>>e>>f){
-	  glm::vec4 point = glm::vec4(a,b,c,1.0);
-	  coor.push_back(point);
-	  color.push_back(glm::vec4(d,e,f,0.0));
+		glm::vec4 point = glm::vec4(a,b,c,1.0);
+		coor.push_back(point);
+		color.push_back(glm::vec4(d,e,f,0.0));
 
-	  bool found = false;
-	  for(int i=0;i<distinct_vertices.size();++i){
-	    if(vec4equal(distinct_vertices[i], point)){
-	      found = true;
-	      break;
-	    }
-	  }
+		bool found = false;
+		for(int i=0;i<distinct_vertices.size();++i){
+			if(vec4equal(distinct_vertices[i], point)){
+				found = true;
+				break;
+			}
+		}
 
-	  if(!found){
-	    distinct_vertices.push_back(point);
-	    vertex_sum.x += point.x, vertex_sum.y += point.y, vertex_sum.z += point.z;
-	    numOfPoints++;
-	  }
+		if(!found){
+			distinct_vertices.push_back(point);
+			vertex_sum.x += point.x, vertex_sum.y += point.y, vertex_sum.z += point.z;
+			numOfPoints++;
+		}
 	}
 
 	centroid = glm::vec3(vertex_sum.x/numOfPoints, vertex_sum.y/numOfPoints, vertex_sum.z/numOfPoints);
-	
-	swap(coor, v_positions_triangle);
-	swap(color, v_colors_triangle);
+
+	swap(coor, v_positions_original);
+	swap(color, v_colors_original);
+
+	v_positions_temp.clear();
+	v_colors_temp.clear();
 
 	inp.close();
 
@@ -296,10 +319,10 @@ void write_to_file(){
 	
 	std::ofstream out(file_name.c_str());
 	
-	for(int i=0;i<v_positions_triangle.size();++i){
-	  glm::vec4 point = transformation_matrix*v_positions_triangle[i];
+	for(int i=0;i<v_positions_original.size();++i){
+	  glm::vec4 point = transformation_matrix*v_positions_original[i];
 	  out<<point.x<<" "<<point.y<<" "<<point.z<<" ";
-	  out<<v_colors_triangle[i].x<<" "<<v_colors_triangle[i].y<<" "<<v_colors_triangle[i].z<<"\n";
+	  out<<v_colors_original[i].x<<" "<<v_colors_original[i].y<<" "<<v_colors_original[i].z<<"\n";
 	}
 	out.close();
 	file_write = 0;
@@ -317,29 +340,31 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 	  if(button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS){
 	    double xpos, ypos;
 	    glfwGetCursorPos(window, &xpos, &ypos); 
-	    bool del = false;
-	    std::cout<<xpos<<" "<<ypos<<std::endl;
-	    float x,y;
-	    	x= ( xpos - window_x/2)/(window_x/2);
-	    	y= (ypos - window_y/2)/(window_y/2);
-	    	std::cout<<x<<" "<<y<<" "<<zpos<<std::endl;
-	    int state =glfwGetKey(window, GLFW_KEY_LEFT_SHIFT);
-	    if( state == GLFW_PRESS)
-	    {
-	    del = true;	
+	    
+	    
+	    float normalized_x, normalized_y;
+	    normalized_x = ( xpos - window_x/2)/(window_x/2);
+	    normalized_y = (ypos - window_y/2)/(window_y/2);
+	    
+	    int state = glfwGetKey(window, GLFW_KEY_LEFT_SHIFT);
+	    if( state == GLFW_PRESS){
+	    	del = !del;	
 	    }
 
 	    if(del){
-	    //	v_positions_triangle
+	    	std::cout<<"Last point deleted\n";
+	    }
+	    else{
+	    	std::cout<<"Last point added\n";
+
 	    }
 
 	  }
 }
 
-void model(GLFWwindow* window){
-		
+void model(GLFWwindow* window){	
+	//std::cout<<"Called\n";
 	glfwSetMouseButtonCallback(window, mouse_button_callback);
-
 }
 
 void renderGL(void)
@@ -356,12 +381,13 @@ modelview_matrix = ortho_matrix * transformation_matrix;
 glUniformMatrix4fv(uModelViewMatrix, 1, GL_FALSE, glm::value_ptr(modelview_matrix));
 
 // Draw 
-glDrawArrays(GL_TRIANGLES, 0, v_positions_triangle.size());
+glDrawArrays(GL_TRIANGLES, 0, v_positions_original.size());
 
 }
 
 int main(int argc, char** argv)
 {
+
 
 numOfPoints = 0;
 
@@ -423,7 +449,12 @@ glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
 
 //Initialize GL state
 csX75::initGL();
+
+createShader();
 initBuffersGL();
+
+
+
 
 // Loop until the user closes the window
 while (glfwWindowShouldClose(window) == 0)
