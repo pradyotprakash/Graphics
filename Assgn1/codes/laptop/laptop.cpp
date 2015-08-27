@@ -114,8 +114,7 @@ void initial_image(){
 }
 
 
-void quad(int a, int b, int c, int d)
-{
+void quad(int a, int b, int c, int d){
 	v_colors_original.push_back(vertices[a].second); v_positions_original.push_back(vertices[a].first);
 	v_colors_original.push_back(vertices[b].second); v_positions_original.push_back(vertices[b].first);
 	v_colors_original.push_back(vertices[c].second); v_positions_original.push_back(vertices[c].first);
@@ -124,8 +123,7 @@ void quad(int a, int b, int c, int d)
 	v_colors_original.push_back(vertices[d].second); v_positions_original.push_back(vertices[d].first);
 }
 
-void laptop(void)
-{
+void laptop(void){
 
 	initial_image();
 
@@ -180,7 +178,7 @@ void createShader(){
 	glUseProgram( shaderProgram );
 }
 
-void load_into_buffer(std::vector<glm::vec4> &v_position_data, std::vector<glm::vec4> &v_color_data){
+void load_onto_buffer(std::vector<glm::vec4> &v_position_data, std::vector<glm::vec4> &v_color_data){
 	
 	glBindBuffer (GL_ARRAY_BUFFER, vbo);
 
@@ -214,7 +212,7 @@ void setup_buffer(){
 	colors_added.insert(colors_added.end(), v_colors_original.begin(), v_colors_original.end());
 	colors_added.insert(colors_added.end(), v_colors_temp.begin(), v_colors_temp.end());
 
-	load_into_buffer(positions_added, colors_added);
+	load_onto_buffer(positions_added, colors_added);
 }
 
 void initBuffersGL(){
@@ -285,6 +283,8 @@ void load_from_file(){
 
 	file_load = 0;
 	setup_buffer();
+
+	std::cout<<"File loaded successfully\n";
 	
 }
 
@@ -304,17 +304,24 @@ void write_to_file(){
 	
 	std::cout << "Enter file name: ";
 	getline(std::cin, file_name);
-	
+	//file_name = ".models/" + file_name;
 	std::ofstream out(file_name.c_str());
-	// add v_position_temp to the file too
 
 	for(int i=0;i<v_positions_original.size();++i){
-	  glm::vec4 point = transformation_matrix*v_positions_original[i];
-	  out<<point.x<<" "<<point.y<<" "<<point.z<<" ";
-	  out<<v_colors_original[i].x<<" "<<v_colors_original[i].y<<" "<<v_colors_original[i].z<<"\n";
+		glm::vec4 point = transformation_matrix*v_positions_original[i];
+		out<<point.x<<" "<<point.y<<" "<<point.z<<" ";
+		out<<v_colors_original[i].x<<" "<<v_colors_original[i].y<<" "<<v_colors_original[i].z<<"\n";
 	}
+
+	for(int i=0;i<v_positions_temp.size();++i){
+		glm::vec4 point = transformation_matrix*v_positions_temp[i];
+		out<<point.x<<" "<<point.y<<" "<<point.z<<" ";
+		out<<v_colors_temp[i].x<<" "<<v_colors_temp[i].y<<" "<<v_colors_temp[i].z<<"\n";
+	}
+
 	out.close();
 	file_write = 0;
+	std::cout<<"File written successfully\n";
 }
 
 void set_centroid_as_origin(){
@@ -390,7 +397,10 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 		    	glm::vec4 newPoint = glm::vec4(normalized_x, normalized_y, zpos, 1);
 		    	
 		    	// add color of point
-		    	glm::vec4 newPointColor = glm::vec4(1,1,1,0);
+		    	std::cout<<"Enter color in R G B A format: ";
+		    	GLfloat r, g, b, a;
+		    	std::cin>>r>>g>>b>>a;
+		    	glm::vec4 newPointColor = glm::vec4(r,g,b,a);
 		    	newPointsAdded++;
 
 		    	if(newPointsAdded == 1)
@@ -412,8 +422,7 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 		    	std::map<glm::vec4, int>::iterator it = distinct_vertices.find(newPoint);
 		    	if(it == distinct_vertices.end()){
 		    		// not found
-		    		std::cout<<"Not found"<<std::endl;
-					std::cout<<newPoint.x<<" "<< newPoint.y<<" "<<newPoint.z<<std::endl;
+		    		
 		    		vertex_sum.x += newPoint.x;
 		    		vertex_sum.y += newPoint.y;
 		    		vertex_sum.z += newPoint.z;
@@ -426,8 +435,6 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 		    	}
 		    	else{
 		    		// found
-		    		std::cout<<" found"<<std::endl;
-					std::cout<<newPoint.x<<" "<< newPoint.y<<" "<<newPoint.z<<std::endl;
 		    		
 		    		it->second = it->second + 1;
 		    	}		    	   	
@@ -439,7 +446,6 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 }
 
 void model(GLFWwindow* window){	
-	//std::cout<<"Called\n";
 	glfwSetMouseButtonCallback(window, mouse_button_callback);
 }
 
