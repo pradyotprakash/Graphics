@@ -1,4 +1,4 @@
-﻿Build started 22-Aug-15 8:32:23 PM.
+﻿Build started 23-Aug-15 2:06:10 PM.
      1>Project "C:\Users\Lokit\Desktop\Graphics\Assgn1\codes\fan\ConsoleApplication1\ConsoleApplication1\ConsoleApplication1.vcxproj" on node 2 (Build target(s)).
      1>ClCompile:
          C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin\CL.exe /c /I"C:\Opengl-wrappers\glew-1.12.0\include" /I"C:\Opengl-wrappers\glfw-3.1.1.bin.WIN32\include" /ZI /nologo /W3 /WX- /sdl /Od /Oy- /D WIN32 /D _DEBUG /D _CONSOLE /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"Debug\\" /Fd"Debug\vc140.pdb" /Gd /TP /analyze- /errorReport:prompt 03_colorcube_rotate.cpp
@@ -15,4 +15,4 @@
 
 Build succeeded.
 
-Time Elapsed 00:00:03.52
+Time Elapsed 00:00:06.05

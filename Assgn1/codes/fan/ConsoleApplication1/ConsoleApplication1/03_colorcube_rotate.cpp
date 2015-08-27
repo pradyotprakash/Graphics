@@ -17,17 +17,31 @@
 
 
 #include "03_colorcube_rotate.hpp"
-
+#include <utility>
+#include <fstream>
 GLuint shaderProgram;
 GLuint vbo, vao;
 
 glm::mat4 rotation_matrix;
 GLuint uRotationMatrix;
 
+std::vector<glm::vec4> distinct_vertices;
+glm::vec3 vertex_sum;
+glm::vec3 centroid;
+
 //-----------------------------------------------------------------
 
 //6 faces, 2 triangles/face, 3 vertices/triangle
 const int num_vertices = 36*3;
+
+bool vec4equal(const glm::vec4 &vecA, const glm::vec4 &vecB)
+{
+	const double epsilion = 0.00001;  // choose something apprpriate.
+
+	return fabs(vecA[0] - vecB[0]) < epsilion
+		&& fabs(vecA[1] - vecB[1]) < epsilion
+		&& fabs(vecA[2] - vecB[2]) < epsilion;
+}
 
 //Eight vertices in homogenous coordinates
 glm::vec4 positions[8] = {
