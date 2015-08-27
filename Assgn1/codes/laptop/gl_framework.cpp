@@ -86,10 +86,16 @@ namespace csX75
       centroid_translate = 1;
     }
     else if(key == GLFW_KEY_M && action == GLFW_PRESS){
-      modelling_enabled = 1; inspection_enabled = 0;
+      modelling_enabled = 1; 
+      if(modelling_enabled == inspection_enabled)
+        std::cout<<"Modelling enabled\n";
+      inspection_enabled = 0;
     }
     else if(key == GLFW_KEY_I && action == GLFW_PRESS){
-      modelling_enabled = 0; inspection_enabled = 1;
+      modelling_enabled = 0;
+      if(modelling_enabled == inspection_enabled)
+        std::cout<<"Inspection enabled\n";
+      inspection_enabled = 1;
     }
   }
 };

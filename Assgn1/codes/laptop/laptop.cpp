@@ -5,6 +5,8 @@
 #define pvec4 std::pair<glm::vec4, glm::vec4>
 
 const int glmVec4Size = sizeof(glm::vec4);
+const int window_x = 512;
+const int window_y = 512;
 
 GLuint shaderProgram;
 GLuint vbo, vao;
@@ -22,7 +24,7 @@ std::string fs_file = "fs.glsl";
 std::vector<glm::vec4> v_positions_triangle;
 std::vector<glm::vec4> v_colors_triangle;
 
-std::vector<glm::vec4> v_colors_line;
+std::vector<glm::vec4> v_added_position;
 std::vector<glm::vec4> v_positions_line;
 
 std::vector<glm::vec4> distinct_vertices;
@@ -34,8 +36,8 @@ bool vec4equal(const glm::vec4 &vecA, const glm::vec4 &vecB)
  const double epsilion = 0.00001;  // choose something apprpriate.
 
  return fabs(vecA[0] -vecB[0]) < epsilion   
-        && fabs(vecA[1] -vecB[1]) < epsilion   
-        && fabs(vecA[2] -vecB[2]) < epsilion; 
+	      && fabs(vecA[1] -vecB[1]) < epsilion   
+	      && fabs(vecA[2] -vecB[2]) < epsilion; 
 } 
 
 
@@ -108,20 +110,16 @@ vertices.push_back(pvec4(glm::vec4(-0.15, -0.5 + 0.1, 1.1, 1), glm::vec4(0.0, 0.
 numOfPoints = vertices.size();
 
 for(int i=0;i<numOfPoints;++i){
-  distinct_vertices.push_back(vertices[i].first);
+	distinct_vertices.push_back(vertices[i].first);
 
-  vertex_sum.x += distinct_vertices[i].x;
-  vertex_sum.y += distinct_vertices[i].y;
-  vertex_sum.z += distinct_vertices[i].z;
+	vertex_sum.x += distinct_vertices[i].x;
+	vertex_sum.y += distinct_vertices[i].y;
+	vertex_sum.z += distinct_vertices[i].z;
 }
 
 centroid = glm::vec3(vertex_sum.x/numOfPoints, vertex_sum.y/numOfPoints, vertex_sum.z/numOfPoints);
 }
 
-void line(int a, int b){
-v_colors_line.push_back(vertices[a].second); v_positions_line.push_back(vertices[a].first);
-v_colors_line.push_back(vertices[b].second); v_positions_line.push_back(vertices[b].first);
-}
 
 void quad(int a, int b, int c, int d)
 {
@@ -188,7 +186,7 @@ quad(24, 25, 26, 27);
 void initBuffersGL(void)
 {
 if(!file_load && !centroid_translate)
-  laptop();
+	laptop();
 
 glGenVertexArrays (1, &vao);
 glBindVertexArray (vao);
@@ -229,53 +227,53 @@ uModelViewMatrix = glGetUniformLocation( shaderProgram, "uModelViewMatrix");
 }
 
 void load_from_file(){
-  std::string file_name;
-  std::string s;
+	std::string file_name;
+	std::string s;
 
-  xpos = 0, ypos = 0, zpos = 0, xrot = 0, yrot = 0, zrot = 0;
+	xpos = 0, ypos = 0, zpos = 0, xrot = 0, yrot = 0, zrot = 0;
 
-  std::cout<<"Enter file name: ";
-  getline(std::cin, file_name);
+	std::cout<<"Enter file name: ";
+	getline(std::cin, file_name);
 
-  std::ifstream inp(file_name.c_str());
+	std::ifstream inp(file_name.c_str());
 
-  std::vector<glm::vec4> coor;
-  std::vector<glm::vec4> color;
-  GLfloat a, b, c, d, e, f;
+	std::vector<glm::vec4> coor;
+	std::vector<glm::vec4> color;
+	GLfloat a, b, c, d, e, f;
 
-  distinct_vertices.clear();
-  vertex_sum = glm::vec3(0,0,0);
-  numOfPoints = 0;
+	distinct_vertices.clear();
+	vertex_sum = glm::vec3(0,0,0);
+	numOfPoints = 0;
 
-  while(inp>>a>>b>>c>>d>>e>>f){
-    glm::vec4 point = glm::vec4(a,b,c,1.0);
-    coor.push_back(point);
-    color.push_back(glm::vec4(d,e,f,0.0));
+	while(inp>>a>>b>>c>>d>>e>>f){
+	  glm::vec4 point = glm::vec4(a,b,c,1.0);
+	  coor.push_back(point);
+	  color.push_back(glm::vec4(d,e,f,0.0));
 
-    bool found = false;
-    for(int i=0;i<distinct_vertices.size();++i){
-      if(vec4equal(distinct_vertices[i], point)){
-        found = true;
-        break;
-      }
-    }
+	  bool found = false;
+	  for(int i=0;i<distinct_vertices.size();++i){
+	    if(vec4equal(distinct_vertices[i], point)){
+	      found = true;
+	      break;
+	    }
+	  }
 
-    if(!found){
-      distinct_vertices.push_back(point);
-      vertex_sum.x += point.x, vertex_sum.y += point.y, vertex_sum.z += point.z;
-      numOfPoints++;
-    }
-  }
+	  if(!found){
+	    distinct_vertices.push_back(point);
+	    vertex_sum.x += point.x, vertex_sum.y += point.y, vertex_sum.z += point.z;
+	    numOfPoints++;
+	  }
+	}
 
-  centroid = glm::vec3(vertex_sum.x/numOfPoints, vertex_sum.y/numOfPoints, vertex_sum.z/numOfPoints);
-  
-  swap(coor, v_positions_triangle);
-  swap(color, v_colors_triangle);
+	centroid = glm::vec3(vertex_sum.x/numOfPoints, vertex_sum.y/numOfPoints, vertex_sum.z/numOfPoints);
+	
+	swap(coor, v_positions_triangle);
+	swap(color, v_colors_triangle);
 
-  inp.close();
+	inp.close();
 
-  initBuffersGL();
-  file_load = 0;
+	initBuffersGL();
+	file_load = 0;
 }
 
 void transform(){
@@ -291,33 +289,57 @@ transformation_matrix = tr2*rot3*rot2*rot1*tr1;
 }
 
 void write_to_file(){
-  std::string file_name;
-  
-  std::cout << "Enter file name: ";
-  getline(std::cin, file_name);
-  
-  std::ofstream out(file_name.c_str());
-  
-  for(int i=0;i<v_positions_triangle.size();++i){
-    glm::vec4 point = transformation_matrix*v_positions_triangle[i];
-    out<<point.x<<" "<<point.y<<" "<<point.z<<" ";
-    out<<v_colors_triangle[i].x<<" "<<v_colors_triangle[i].y<<" "<<v_colors_triangle[i].z<<"\n";
-  }
-  out.close();
-  file_write = 0;
+	std::string file_name;
+	
+	std::cout << "Enter file name: ";
+	getline(std::cin, file_name);
+	
+	std::ofstream out(file_name.c_str());
+	
+	for(int i=0;i<v_positions_triangle.size();++i){
+	  glm::vec4 point = transformation_matrix*v_positions_triangle[i];
+	  out<<point.x<<" "<<point.y<<" "<<point.z<<" ";
+	  out<<v_colors_triangle[i].x<<" "<<v_colors_triangle[i].y<<" "<<v_colors_triangle[i].z<<"\n";
+	}
+	out.close();
+	file_write = 0;
 }
 
 void set_centroid_as_origin(){
 std::vector<glm::vec4> coor;
 
-std::cout<<centroid.x<<" "<<centroid.y<<" "<<centroid.z<<std::endl;
-
 centroid = glm::vec3(0, 0, 0);
 centroid_translate = 0; xpos = 0; ypos = 0; zpos = 0;
 }
 
-void model(){
-  
+void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
+{
+	  if(button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS){
+	    double xpos, ypos;
+	    glfwGetCursorPos(window, &xpos, &ypos); 
+	    bool del = false;
+	    std::cout<<xpos<<" "<<ypos<<std::endl;
+	    float x,y;
+	    	x= ( xpos - window_x/2)/(window_x/2);
+	    	y= (ypos - window_y/2)/(window_y/2);
+	    	std::cout<<x<<" "<<y<<" "<<zpos<<std::endl;
+	    int state =glfwGetKey(window, GLFW_KEY_LEFT_SHIFT);
+	    if( state == GLFW_PRESS)
+	    {
+	    del = true;	
+	    }
+
+	    if(del){
+	    //	v_positions_triangle
+	    }
+
+	  }
+}
+
+void model(GLFWwindow* window){
+		
+	glfwSetMouseButtonCallback(window, mouse_button_callback);
+
 }
 
 void renderGL(void)
@@ -354,7 +376,7 @@ glfwSetErrorCallback(csX75::error_callback);
 
 //! Initialize GLFW
 if (!glfwInit())
-  return -1;
+	return -1;
 
 //We want OpenGL 4.0
 glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3); 
@@ -365,12 +387,12 @@ glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE); 
 
 //! Create a windowed mode window and its OpenGL context
-window = glfwCreateWindow(512, 512, "Laptop", NULL, NULL);
+window = glfwCreateWindow(window_x, window_y, "Laptop", NULL, NULL);
 if (!window)
-  {
-    glfwTerminate();
-    return -1;
-  }
+	{
+	  glfwTerminate();
+	  return -1;
+	}
 
 //! Make the window's context current 
 glfwMakeContextCurrent(window);
@@ -380,10 +402,10 @@ glfwMakeContextCurrent(window);
 glewExperimental = GL_TRUE;
 GLenum err = glewInit();
 if (GLEW_OK != err)
-  {
-    //Problem: glewInit failed, something is seriously wrong.
-    std::cerr<<"GLEW Init Failed : %s"<<std::endl;
-  }
+	{
+	  //Problem: glewInit failed, something is seriously wrong.
+	  std::cerr<<"GLEW Init Failed : %s"<<std::endl;
+	}
 
 //Print and see what context got enabled
 std::cout<<"Vendor: "<<glGetString (GL_VENDOR)<<std::endl;
@@ -405,31 +427,31 @@ initBuffersGL();
 
 // Loop until the user closes the window
 while (glfwWindowShouldClose(window) == 0)
-  {
-     if(file_load){
-      load_from_file();
-     }
+	{
+	   if(file_load){
+	    load_from_file();
+	   }
 
-     if(centroid_translate){
-      set_centroid_as_origin();
-     }
-    // Render here
-    renderGL();
+	   if(centroid_translate){
+	    set_centroid_as_origin();
+	   }
+	  // Render here
+	  renderGL();
 
-    if(file_write){
-      write_to_file();
-    }
+	  if(file_write){
+	    write_to_file();
+	  }
 
-    if(modelling_enabled){
-      model();
-    }
+	  if(modelling_enabled){
+	    model(window);
+	  }
 
-    // Swap front and back buffers
-    glfwSwapBuffers(window);
-    
-    // Poll for and process events
-    glfwPollEvents();
-  }
+	  // Swap front and back buffers
+	  glfwSwapBuffers(window);
+	  
+	  // Poll for and process events
+	  glfwPollEvents();
+	}
 
 glfwTerminate();
 return 0;
