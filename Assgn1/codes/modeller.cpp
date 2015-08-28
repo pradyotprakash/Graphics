@@ -349,115 +349,117 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 
 	if(modelling_enabled){
 		if(button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS){
-		    double xpos, ypos;
-		    glfwGetCursorPos(window, &xpos, &ypos); 
-		    
-		    
-		    float normalized_x, normalized_y;
-		    normalized_x = 2*( xpos - window_x/2)/(window_x/2);
-		    normalized_y = -2*(ypos - window_y/2)/(window_y/2);
-		    
-		    int state = glfwGetKey(window, GLFW_KEY_LEFT_SHIFT);
-		    
-		    if( state == GLFW_PRESS){
-		    	del = !del;
-		    	if(del)
-		    		std::cout<<"Deletion mode activated\n";
-		    	else std::cout<<"Insertion mode activated\n";
-		    }
+			double xpos, ypos;
+			glfwGetCursorPos(window, &xpos, &ypos); 
+			
+			
+			float normalized_x, normalized_y;
+			normalized_x = 2*( xpos - window_x/2)/(window_x/2);
+			normalized_y = -2*(ypos - window_y/2)/(window_y/2);
+			
+			int state = glfwGetKey(window, GLFW_KEY_LEFT_SHIFT);
+			
+			if( state == GLFW_PRESS){
+				del = !del;
+				if(del)
+					std::cout<<"Deletion mode activated\n";
+				else std::cout<<"Insertion mode activated\n";
+			}
 
-		    if(del){
-		    	
-		    	glm::vec4 popped_point = v_positions_temp[v_positions_temp.size()-1];
+			if(del){
+				
+				if(numOfPoints){
+					glm::vec4 popped_point = v_positions_temp[v_positions_temp.size()-1];
 
-		    	if(newPointsAdded == 3){
-		    		last_inserted.first = v_positions_temp[v_positions_temp.size()-2];
-		    		last_inserted.second = v_colors_temp[v_colors_temp.size()-2];
-		    	}
-		    	else if(newPointsAdded > 3){
-		    		last_inserted.first = v_positions_temp[v_positions_temp.size()-4];
-		    		last_inserted.second = v_colors_temp[v_colors_temp.size()-4];
-		    	}
+					if(newPointsAdded == 3){
+						last_inserted.first = v_positions_temp[v_positions_temp.size()-2];
+						last_inserted.second = v_colors_temp[v_colors_temp.size()-2];
+					}
+					else if(newPointsAdded > 3){
+						last_inserted.first = v_positions_temp[v_positions_temp.size()-4];
+						last_inserted.second = v_colors_temp[v_colors_temp.size()-4];
+					}
 
-		    	for(int i=0;i<3;++i){
-			    	v_positions_temp.pop_back();
-			    	v_colors_temp.pop_back();
-			    }
+					if(newPointsAdded >= 3){
+						for(int i=0;i<3;++i){
+							v_positions_temp.pop_back();
+							v_colors_temp.pop_back();
+						}
+					}
 
-			    --newPointsAdded;
+					--newPointsAdded;
 
-			    std::map<glm::vec4, int>::iterator it = distinct_vertices.find(popped_point);
-			    
-			    if(it->second >= 2){
-			    	it->second = it->second - 1;
-			    }
-			    else{
-			    	distinct_vertices.erase(it);
-			    	--numOfPoints;
+					std::map<glm::vec4, int>::iterator it = distinct_vertices.find(popped_point);
+					
+					if(it->second >= 2){
+						it->second = it->second - 1;
+					}
+					else{
+						distinct_vertices.erase(it);
+						--numOfPoints;
 
-			    	// recalculate centroid
-			    	vertex_sum.x -= popped_point.x;
-			    	vertex_sum.y -= popped_point.y;
-			    	vertex_sum.z -= popped_point.z;
-			    	
-			    	centroid = glm::vec3(vertex_sum.x/numOfPoints, vertex_sum.y/numOfPoints, vertex_sum.z/numOfPoints);
+						// recalculate centroid
+						vertex_sum.x -= popped_point.x;
+						vertex_sum.y -= popped_point.y;
+						vertex_sum.z -= popped_point.z;
+						
+						centroid = glm::vec3(vertex_sum.x/numOfPoints, vertex_sum.y/numOfPoints, vertex_sum.z/numOfPoints);
 
-			    }
+					}
 
-		    	std::cout<<"Last point deleted is ("<<popped_point.x<<","<<popped_point.y<<","<<popped_point.z<<")\n";
-		    }
-		    else{
-		    	std::cout<<normalized_x<<" "<<normalized_y<<" "<<zpos<<"\n";
-		    	glm::vec4 newPoint = glm::vec4(normalized_x, normalized_y, zpos, 1);
-		    	glm::mat4 inv;
-		    	inverse_transform(inv);
-		    	
-		    	newPoint = inv*newPoint;
-		    	// add color of point
-		    	//std::cout<<"Enter color in R G B A format: ";
-		    	GLfloat r, g, b, a;
-		    	//std::cin>>r>>g>>b>>a;
-		    	glm::vec4 newPointColor = glm::vec4(1,1,1,0);
-		    	newPointsAdded++;
+					std::cout<<"Last point deleted is ("<<popped_point.x<<","<<popped_point.y<<","<<popped_point.z<<")\n";
+				}
+			}
+			else{
+				glm::vec4 newPoint = glm::vec4(normalized_x, normalized_y, zpos, 1);
+				glm::mat4 inv;
+				inverse_transform(inv);
+				
+				newPoint = inv*newPoint;
+				// add color of point
+				std::cout<<"Enter color in R G B A format: ";
+				GLfloat r, g, b, a;
+				std::cin>>r>>g>>b>>a;
+				glm::vec4 newPointColor = glm::vec4(r,g,b,a);
+				newPointsAdded++;
 
-		    	if(newPointsAdded == 1)
-		    		first_inserted = pvec4(newPoint, newPointColor);
-		    	
-		    	if(newPointsAdded >= 3){
-		    		v_positions_temp.push_back(first_inserted.first);
-		    		v_positions_temp.push_back(last_inserted.first);
-		    		v_positions_temp.push_back(newPoint);
+				if(newPointsAdded == 1)
+					first_inserted = pvec4(newPoint, newPointColor);
+				
+				if(newPointsAdded >= 3){
+					v_positions_temp.push_back(first_inserted.first);
+					v_positions_temp.push_back(last_inserted.first);
+					v_positions_temp.push_back(newPoint);
 
-		    		v_colors_temp.push_back(first_inserted.second);
-		    		v_colors_temp.push_back(last_inserted.second);
-		    		v_colors_temp.push_back(newPointColor);
-		    	}
+					v_colors_temp.push_back(first_inserted.second);
+					v_colors_temp.push_back(last_inserted.second);
+					v_colors_temp.push_back(newPointColor);
+				}
 
-		    	if(newPointsAdded >= 2)
-		    		last_inserted = pvec4(newPoint, newPointColor);
+				if(newPointsAdded >= 2)
+					last_inserted = pvec4(newPoint, newPointColor);
 
-		    	std::map<glm::vec4, int>::iterator it = distinct_vertices.find(newPoint);
-		    	if(it == distinct_vertices.end()){
-		    		// not found
-		    		
-		    		vertex_sum.x += newPoint.x;
-		    		vertex_sum.y += newPoint.y;
-		    		vertex_sum.z += newPoint.z;
-		    		numOfPoints++;
-		    		distinct_vertices.insert(pvec4i(newPoint,1));
+				std::map<glm::vec4, int>::iterator it = distinct_vertices.find(newPoint);
+				if(it == distinct_vertices.end()){
+					// not found
+					
+					vertex_sum.x += newPoint.x;
+					vertex_sum.y += newPoint.y;
+					vertex_sum.z += newPoint.z;
+					numOfPoints++;
+					distinct_vertices.insert(pvec4i(newPoint,1));
 
-		    		centroid = glm::vec3(vertex_sum.x/numOfPoints, vertex_sum.y/numOfPoints, vertex_sum.z/numOfPoints);
+					centroid = glm::vec3(vertex_sum.x/numOfPoints, vertex_sum.y/numOfPoints, vertex_sum.z/numOfPoints);
 
-		    		std::cout<<"Last point added at ("<<newPoint.x<<","<<newPoint.y<<","<<newPoint.z<<")\n";
-		    	}
-		    	else{
-		    		// found
-		    		
-		    		it->second = it->second + 1;
-		    	}		    	   	
-		    }
+					std::cout<<"Last point added at ("<<newPoint.x<<","<<newPoint.y<<","<<newPoint.z<<")\n";
+				}
+				else{
+					// found
+					it->second = it->second + 1;
+				}				   	
+			}
 
-		    setup_buffer();
+			setup_buffer();
 		}
 	}
 }
