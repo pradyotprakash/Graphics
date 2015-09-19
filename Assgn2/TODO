@@ -1,0 +1,4 @@
+1. Create a frustum. Apply inverse transform to bring it to wcs. add support for lines
+2. Figure out a way to show multiple vaos simulataneously
+3. Add input controls to switch b/w cs
+4. 

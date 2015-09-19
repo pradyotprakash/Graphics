@@ -2,27 +2,7 @@
 #include <utility>
 #include <fstream>
 #include <map>
-
-#define pvec4 std::pair<glm::vec4, glm::vec4>
-#define pvec4i std::pair<glm::vec4, int>
-
-struct vec4less{
-	bool operator()(const glm::vec4 &vecA, const glm::vec4 &vecB){ 
-		const double epsilion = 0.00001;  // choose something apprpriate.
-
-		if(vecA.x < vecB.x)
-			return true;
-		else if(vecA.x == vecB.x){
-			if(vecA.y < vecB.y)
-				return true;
-			else if(vecA.y == vecB.y){
-				if(vecA.z < vecB.z)
-				return true;
-			}
-		}
-		return false;
-	}
-};
+#include <sstream>
 
 const int glmVec4Size = sizeof(glm::vec4);
 const int window_x = 512;
@@ -31,137 +11,26 @@ const int window_y = 512;
 const std::string vs_file = "vs.glsl";
 const std::string fs_file = "fs.glsl";
 
-unsigned int numOfPoints, newPointsAdded;
-bool del = false;
-
 glm::mat4 transformation_matrix;
 glm::mat4 ortho_matrix;
 glm::mat4 modelview_matrix;
+
+glm::vec3 eye, lookat, up, u, v, n;
+glm::mat4 Awv, Avc, Acn, And;
+
+GLfloat L, R, T, B, N, F;
+GLuint shaderProgram;
 GLuint uModelViewMatrix;
 
-GLuint shaderProgram;
-GLuint vao, vbo;
+std::vector<GLuint> vao;
+std::vector<std::vector<GLuint> > vbo;
 
-std::vector<glm::vec4> v_positions_original;
-std::vector<glm::vec4> v_colors_original;
-std::vector<glm::vec4> v_positions_temp;
-std::vector<glm::vec4> v_colors_temp;
-
-std::map<glm::vec4, int, vec4less> distinct_vertices;
-
-glm::vec3 vertex_sum;
-glm::vec3 centroid;
-pvec4 first_inserted, last_inserted;
-
-std::vector<pvec4> vertices;
-void initial_image(){
-
-	// outer screen
-	vertices.push_back(pvec4(glm::vec4(-0.75, -0.5, 0, 1), glm::vec4(0.0, 0.0, 1.0, 0.0)));
-	vertices.push_back(pvec4(glm::vec4(0.75, -0.5, 0, 1), glm::vec4(0.0, 0.0, 1.0, 0.0)));
-	vertices.push_back(pvec4(glm::vec4(0.75, 0.5, 0, 1), glm::vec4(0.0, 0.0, 1.0, 0.0)));
-	vertices.push_back(pvec4(glm::vec4(-0.75, 0.5, 0, 1), glm::vec4(0.0, 0.0, 1.0, 0.0)));
-
-	// on z-axis laptop
-
-	// outer rectangle
-	vertices.push_back(pvec4(glm::vec4(-0.75, -0.5, 0.02, 1), glm::vec4(0.0, 0.0, 0.0, 0.0)));
-	vertices.push_back(pvec4(glm::vec4(0.75, -0.5, 0.02, 1), glm::vec4(0.0, 0.0, 0.0, 0.0)));
-	vertices.push_back(pvec4(glm::vec4(0.75, 0.5, 0.02, 1), glm::vec4(0.0, 0.0, 0.0, 0.0)));
-	vertices.push_back(pvec4(glm::vec4(-0.75, 0.5, 0.02, 1), glm::vec4(0.0, 0.0, 0.0, 0.0)));
-
-	// inner rectangle
-	vertices.push_back(pvec4(glm::vec4(-0.6, -0.4, 0.02, 1), glm::vec4(1.0, 1.0, 1.0, 0.0)));
-	vertices.push_back(pvec4(glm::vec4(0.6, -0.4, 0.02, 1), glm::vec4(1.0, 1.0, 1.0, 0.0)));
-	vertices.push_back(pvec4(glm::vec4(0.6, 0.4, 0.02, 1), glm::vec4(1.0, 1.0, 1.0, 0.0)));
-	vertices.push_back(pvec4(glm::vec4(-0.6, 0.4, 0.02, 1), glm::vec4(1.0, 1.0, 1.0, 0.0)));
-
-	// upper base of the laptop
-	vertices.push_back(pvec4(glm::vec4(-0.75, -0.5 + 0.1, 1.5, 1), glm::vec4(0.5, 0.0, 1.0, 0.0)));
-	vertices.push_back(pvec4(glm::vec4(0.75, -0.5 + 0.1, 1.5, 1), glm::vec4(0.5, 0.0, 1.0, 0.0)));
-	vertices.push_back(pvec4(glm::vec4(0.75, -0.5 + 0.1, 0.02, 1), glm::vec4(0.5, 0.0, 1.0, 0.0)));
-	vertices.push_back(pvec4(glm::vec4(-0.75, -0.5 + 0.1, 0.02, 1), glm::vec4(0.5, 0.0, 1.0, 0.0)));
-
-	// lower base of the laptop
-	vertices.push_back(pvec4(glm::vec4(-0.75, -0.5, 1.5, 1), glm::vec4(.5, 0.0, 1.0, 0.0)));
-	vertices.push_back(pvec4(glm::vec4(0.75, -0.5, 1.5, 1), glm::vec4(.5, 0.0, 1.0, 0.0)));
-	vertices.push_back(pvec4(glm::vec4(0.75, -0.5, 0.02, 1), glm::vec4(.5, 0.0, 1.0, 0.0)));
-	vertices.push_back(pvec4(glm::vec4(-0.75, -0.5, 0.02, 1), glm::vec4(.5, 0.0, 1.0, 0.0)));
-
-	// keypad
-	vertices.push_back(pvec4(glm::vec4(-0.6, -0.5 + 0.1, 1.0, 1), glm::vec4(0.0, 0.0, 0.0, 0.0)));
-	vertices.push_back(pvec4(glm::vec4(0.6, -0.5 + 0.1, 1.0, 1), glm::vec4(0.0, 0.0, 0.0, 0.0)));
-	vertices.push_back(pvec4(glm::vec4(0.6, -0.5 + 0.1, 0.5, 1), glm::vec4(0.0, 0.0, 0.0, 0.0)));
-	vertices.push_back(pvec4(glm::vec4(-0.6, -0.5 + 0.1, 0.5, 1), glm::vec4(0.0, 0.0, 0.0, 0.0)));
-
-	// touchpad
-	vertices.push_back(pvec4(glm::vec4(-0.15, -0.5 + 0.1, 1.3, 1), glm::vec4(0.0, 0.0, 0.0, 0.0)));
-	vertices.push_back(pvec4(glm::vec4(0.15, -0.5 + 0.1, 1.3, 1), glm::vec4(0.0, 0.0, 0.0, 0.0)));
-	vertices.push_back(pvec4(glm::vec4(0.15, -0.5 + 0.1, 1.1, 1), glm::vec4(0.0, 0.0, 0.0, 0.0)));
-	vertices.push_back(pvec4(glm::vec4(-0.15, -0.5 + 0.1, 1.1, 1), glm::vec4(0.0, 0.0, 0.0, 0.0)));  
-
-	numOfPoints = vertices.size();
-
-	for(int i=0;i<numOfPoints;++i){
-		distinct_vertices.insert(pvec4i(vertices[i].first, 1));
-
-		vertex_sum.x += vertices[i].first.x;
-		vertex_sum.y += vertices[i].first.y;
-		vertex_sum.z += vertices[i].first.z;
-	}
-
-	centroid = glm::vec3(vertex_sum.x/numOfPoints, vertex_sum.y/numOfPoints, vertex_sum.z/numOfPoints);
+void getnVaos(int n){
+	glGenVertexArrays(n, &vao[0]);
 }
 
-
-void quad(int a, int b, int c, int d){
-	v_colors_original.push_back(vertices[a].second); v_positions_original.push_back(vertices[a].first);
-	v_colors_original.push_back(vertices[b].second); v_positions_original.push_back(vertices[b].first);
-	v_colors_original.push_back(vertices[c].second); v_positions_original.push_back(vertices[c].first);
-	v_colors_original.push_back(vertices[a].second); v_positions_original.push_back(vertices[a].first);
-	v_colors_original.push_back(vertices[c].second); v_positions_original.push_back(vertices[c].first);
-	v_colors_original.push_back(vertices[d].second); v_positions_original.push_back(vertices[d].first);
-}
-
-void laptop(void){
-
-	initial_image();
-
-	// back of the screen
-	quad(0, 1, 2, 3);
-
-	// 4 outer trapezoids of the display
-	quad(4, 5, 9, 9);
-	quad(5, 6, 9, 10);
-	quad(6, 7, 10, 11);
-	quad(7, 4, 11, 8);
-
-	// actual inner display
-	quad(8, 9, 10, 11);
-
-	// keypad surface
-	quad(12, 13, 14, 15);
-	// face opposite to the keypad
-	quad(16, 17, 18, 19);
-
-	// completing the rectangles encompassing the space between the upper
-	// and the lower surface
-	quad(12, 13, 17, 16);
-	quad(13, 14, 18, 17);
-	quad(14, 15, 19, 18);
-	quad(15, 12, 16, 19);
-
-	// similar thing as above for the display
-	quad(0, 1, 5, 4);
-	quad(1, 2, 6, 5);
-	quad(2, 3, 7, 6);
-	quad(3, 0, 4, 7);
-
-	// keypad
-	quad(20, 21, 22, 23);
-
-	// mouse
-	quad(24, 25, 26, 27);
+void get2Vbos(int i){
+	glGenBuffers(2, &vbo[i][0]);
 }
 
 void createShader(){
@@ -176,21 +45,14 @@ void createShader(){
 
 	// Load shaders and use the resulting shader program
 	glUseProgram( shaderProgram );
+
+	uModelViewMatrix = glGetUniformLocation( shaderProgram, "uModelViewMatrix");
 }
 
+
+//take care of this later on
 void load_onto_buffer(std::vector<glm::vec4> &v_position_data, std::vector<glm::vec4> &v_color_data){
 	
-	glBindBuffer (GL_ARRAY_BUFFER, vbo);
-
-	int vertex_array_size = v_position_data.size()*glmVec4Size;
-	int color_array_size = v_color_data.size()*glmVec4Size;
-
-	int totalSpace = vertex_array_size + color_array_size;
-
-	glBufferData (GL_ARRAY_BUFFER, totalSpace, NULL, GL_STATIC_DRAW);
-	glBufferSubData( GL_ARRAY_BUFFER, 0, vertex_array_size, &v_position_data[0] );
-	glBufferSubData( GL_ARRAY_BUFFER, vertex_array_size, color_array_size, &v_color_data[0] );
-
 	// set up vertex arrays
 	GLuint vPosition = glGetAttribLocation( shaderProgram, "vPosition" );
 	glEnableVertexAttribArray( vPosition );
@@ -201,35 +63,67 @@ void load_onto_buffer(std::vector<glm::vec4> &v_position_data, std::vector<glm::
 	glVertexAttribPointer( vColor, 4, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(v_position_data.size()*glmVec4Size) );
 }
 
-void setup_buffer(){
-	std::vector<glm::vec4> positions_added;
-	positions_added.reserve(v_positions_original.size() + v_positions_temp.size());
-	positions_added.insert(positions_added.end(), v_positions_original.begin(), v_positions_original.end());
-	positions_added.insert(positions_added.end(), v_positions_temp.begin(), v_positions_temp.end());
+void load_onto_buffer(std::vector<glm::vec4> &vertex_data, std::vector<glm::vec4> &color_data, int i){
+	
+	glBindVertexArray(vao[i]);
+	get2Vbos(i);
 
-	std::vector<glm::vec4> colors_added;
-	colors_added.reserve(v_colors_original.size() + v_colors_temp.size());
-	colors_added.insert(colors_added.end(), v_colors_original.begin(), v_colors_original.end());
-	colors_added.insert(colors_added.end(), v_colors_temp.begin(), v_colors_temp.end());
+	glBindBuffer(GL_ARRAY_BUFFER, vbo[i][0]);
 
-	load_onto_buffer(positions_added, colors_added);
+	glBufferData(GL_ARRAY_BUFFER, vertex_data.size()*glmVec4Size, NULL, GL_STATIC_DRAW);
+	glBufferSubData(GL_ARRAY_BUFFER, 0, vertex_data.size()*glmVec4Size, &vertex_data[0]);
+
+	glBindBuffer(GL_ARRAY_BUFFER, vbo[i][1]);
+
+	glBufferData(GL_ARRAY_BUFFER, color_data.size()*glmVec4Size, NULL, GL_STATIC_DRAW);
+	glBufferSubData(GL_ARRAY_BUFFER, 0, color_data.size()*glmVec4Size, &color_data[0]);
 }
 
-void initBuffersGL(){
+void findScalingMatrix(std::string s, glm::mat4 &scale){
+	std::stringstream ss;
+	ss<<s;
+	GLfloat a, b, c;
+	ss>>a>>b>>c;
 
-	if(!file_load && !centroid_translate){
-		laptop();
-	}
-
-	glGenVertexArrays (1, &vao);
-	glBindVertexArray (vao);
+	GLfloat temp[16] = {a, 0, 0, 0,
+						0, b, 0, 0,
+						0, 0, c, 0,
+						0, 0, 0, 1.0};
 	
-	glGenBuffers (1, &vbo);
-
-	setup_buffer();
-	
-	uModelViewMatrix = glGetUniformLocation( shaderProgram, "uModelViewMatrix");
+	scale = glm::make_mat4(temp);
 }
+
+void findRotationMatrix(std::string s, glm::mat4 &rotate){
+	std::stringstream ss;
+	ss<<s;
+	GLfloat a, b, c;
+	ss>>a>>b>>c;
+
+	a *= 3.1415/180;
+	b *= 3.1415/180;
+	c *= 3.1415/180;
+
+	glm::mat4 rot1 = glm::rotate(glm::mat4(1.0f), a, glm::vec3(1.0f,0.0f,0.0f));
+	glm::mat4 rot2 = glm::rotate(glm::mat4(1.0f), b, glm::vec3(0.0f,1.0f,0.0f));
+	glm::mat4 rot3 = glm::rotate(glm::mat4(1.0f), c, glm::vec3(0.0f,0.0f,1.0f));
+	
+	rotate = rot1*rot2*rot3;
+}
+
+void findTranslationMatrix(std::string s, glm::mat4 &translate){
+	std::stringstream ss;
+	ss<<s;
+	GLfloat a, b, c;
+	ss>>a>>b>>c;
+
+	GLfloat temp[16] = {1, 0, 0, 0,
+						0, 1, 0, 0,
+						0, 0, 1, 0,
+						a, b, c, 1};
+	
+	translate = glm::make_mat4(temp);
+}
+
 
 void load_data_from_file(std::string file_name){
 	std::string s;
@@ -242,248 +136,113 @@ void load_data_from_file(std::string file_name){
 			continue;
 
 		if(models_loaded < 3){
-			// s has the model file name
-			// loading the model
+						
+			std::ifstream model_file(s.c_str());
+
+			std::vector<glm::vec4> vertex_data;
+			std::vector<glm::vec4> color_data;
+
+			glm::mat4 scale, rotate, translate;
 			
+			getline(inp, s);
+			findScalingMatrix(s, scale);
+
+			getline(inp, s);
+			findRotationMatrix(s, rotate);
+
+			getline(inp, s);
+			findTranslationMatrix(s, translate);
+
+			glm::mat4 model_transform_matrix = translate*rotate*scale;
+
+			GLfloat a, b, c, d, e, f;
+			glm::vec4 vertex, color;
+			
+			while(model_file>>a>>b>>c>>d>>e>>f){
+				vertex = glm::vec4(a,b,c,1.0);
+				vertex = model_transform_matrix * vertex;
+				color = glm::vec4(d,e,f,0.0);
+
+				vertex_data.push_back(vertex);
+				color_data.push_back(color);
+			}
+
+			load_onto_buffer(vertex_data, color_data, models_loaded);
+			++models_loaded;
 		}
+
+		std::stringstream ss;
+		ss<<s;
+		GLfloat a, b, c;
+		ss>>a>>b>>c;
+		eye = glm::vec3(a, b, c);
+
+		getline(inp, s);
+		ss<<s;
+		ss>>a>>b>>c;
+		lookat = glm::vec3(a, b, c);
+
+		getline(inp, s);
+		ss<<s;
+		ss>>a>>b>>c;
+		up = glm::vec3(a, b, c);
+
+		getline(inp, s);
+		ss<<s;
+		ss>>L>>R>>T>>B;
+		L = -L; B = -B;
+
+		getline(inp, s);
+		ss<<s;
+		ss>>N>>F;
 	}
 }
 
-
-
-
-void load_from_file(std::string file_name){
+void findAwv(){
 	
-	std::string s;
+	n = glm::normalize(eye - lookat);
+	u = glm::normalize(glm::cross(up, n));
+	v = glm::cross(n, u);
 
-	modelling_enabled = 0;
+	GLfloat temp[16] = {u.x, v.x, n.x, 0.0,
+						u.y, v.y, n.y, 0.0,
+						u.z, v.z, n.z, 0.0,
+						-glm::dot(u, eye), -glm::dot(v, eye), -glm::dot(n, eye), 1};
 
-	xpos = 0, ypos = 0, zpos = 0, xrot = 0, yrot = 0, zrot = 0;
+	Awv = glm::make_mat4(temp);
+}
 
-	std::ifstream inp(file_name.c_str());
-
-	GLfloat a, b, c, d, e, f;
-
-	distinct_vertices.clear();
-	vertex_sum = glm::vec3(0,0,0);
-	centroid = glm::vec3(0,0,0);
-	numOfPoints = 0;
-	newPointsAdded = 0;	
-
-
-	v_positions_original.clear();
-	v_positions_temp.clear();
-	v_colors_original.clear();
-	v_colors_temp.clear();
-
-	while(inp>>a>>b>>c>>d>>e>>f){
-		glm::vec4 point = glm::vec4(a,b,c,1.0);
-		v_positions_original.push_back(point);
-		v_colors_original.push_back(glm::vec4(d,e,f,0.0));
-		
-		std::map<glm::vec4, int>::iterator it = distinct_vertices.find(point);
-		if(it == distinct_vertices.end()){
-
-			// not found
-			distinct_vertices.insert(pvec4i(point,1));
-			vertex_sum.x += point.x;
-			vertex_sum.y += point.y;
-			vertex_sum.z += point.z;
-			numOfPoints++;
-		}
-		else{
-			it->second = it->second + 1;
-		}
-	}
-
-	if(numOfPoints)
-		centroid = glm::vec3(vertex_sum.x/numOfPoints, vertex_sum.y/numOfPoints, vertex_sum.z/numOfPoints);
-
-	inp.close();
-
-	file_load = 0;
-	setup_buffer();
-
-	std::cout<<"File loaded successfully\n";
+void findAvc(){
 	
+	GLfloat temp[16] = {2*N/(R-L), 0, 0, 0,
+						0, 2*N/(T-B), 0, 0,
+						(R+L)/(R-L), (T+B)/(T-B), (F+N)/(N-F), -1.0,
+						0, 0, 2*F*N/(N-F), 0};
+
+	Avc = glm::make_mat4(temp);
+}
+
+void create_fustum(){
+
+}
+
+
+void initialize(){
+	vao.resize(4);
+	getnVaos(4);
+	
+	vbo.resize(4);
+	for(int i=0;i<4;++i)
+		vbo[i].resize(2);
+
+	load_data_from_file("random");
+	create_fustum();
 }
 
 void transform(){
-	glm::mat4 tr1 = glm::translate(glm::mat4(1.0f), glm::vec3(-centroid.x, -centroid.y, -centroid.z));
 
-	glm::mat4 rot1 = glm::rotate(glm::mat4(1.0f), xrot, glm::vec3(1.0f,0.0f,0.0f));
-	glm::mat4 rot2 = glm::rotate(glm::mat4(1.0f), yrot, glm::vec3(0.0f,1.0f,0.0f));
-	glm::mat4 rot3 = glm::rotate(glm::mat4(1.0f), zrot, glm::vec3(0.0f,0.0f,1.0f));
-
-	glm::mat4 tr2 = glm::translate(glm::mat4(1.0f), glm::vec3(centroid.x + xpos, centroid.y + ypos, centroid.z + zpos));
-	transformation_matrix = tr2*rot3*rot2*rot1*tr1; 
-}
-
-void write_to_file(){
-	std::string file_name;
-	
-	std::cout << "Enter file name: ";
-	getline(std::cin, file_name);
-	//file_name = ".models/" + file_name;
-	std::ofstream out(file_name.c_str());
-
-	for(int i=0;i<v_positions_original.size();++i){
-		glm::vec4 point = transformation_matrix*v_positions_original[i];
-		out<<point.x<<" "<<point.y<<" "<<point.z<<" ";
-		out<<v_colors_original[i].x<<" "<<v_colors_original[i].y<<" "<<v_colors_original[i].z<<"\n";
-	}
-
-	for(int i=0;i<v_positions_temp.size();++i){
-		glm::vec4 point = transformation_matrix*v_positions_temp[i];
-		out<<point.x<<" "<<point.y<<" "<<point.z<<" ";
-		out<<v_colors_temp[i].x<<" "<<v_colors_temp[i].y<<" "<<v_colors_temp[i].z<<"\n";
-	}
-
-	out.close();
-	file_write = 0;
-	std::cout<<"File written successfully\n";
-}
-
-void inverse_transform(glm::mat4 &inv){
-	glm::mat4 tr2 = glm::translate(glm::mat4(1.0f), glm::vec3(-1*(centroid.x + xpos), -1*(centroid.y + ypos), -1*(centroid.z + zpos)));
-	glm::mat4 rot3 = glm::rotate(glm::mat4(1.0f), -1*zrot, glm::vec3(0.0f,0.0f,1.0f));
-	glm::mat4 rot2 = glm::rotate(glm::mat4(1.0f), -1*yrot, glm::vec3(0.0f,1.0f,0.0f));
-	glm::mat4 rot1 = glm::rotate(glm::mat4(1.0f), -1*xrot, glm::vec3(1.0f,0.0f,0.0f));
-
-	glm::mat4 tr1 = glm::translate(glm::mat4(1.0f), glm::vec3(centroid.x, centroid.y, centroid.z));
-
-	inv = tr1*rot1*rot2*rot3*tr2;
-
-}
-
-void set_centroid_as_origin(){
-	std::vector<glm::vec4> coor;
-
-	centroid = glm::vec3(0, 0, 0);
-	centroid_translate = 0; xpos = 0; ypos = 0; zpos = 0;
-}
-
-void mouse_button_callback(GLFWwindow* window, int button, int action, int mods){
-
-	if(modelling_enabled){
-		if(button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS){
-			double xpos, ypos;
-			glfwGetCursorPos(window, &xpos, &ypos); 
-			
-			
-			float normalized_x, normalized_y;
-			normalized_x = 2*( xpos - window_x/2)/(window_x/2);
-			normalized_y = -2*(ypos - window_y/2)/(window_y/2);
-			
-			int state = glfwGetKey(window, GLFW_KEY_LEFT_SHIFT);
-			
-			if( state == GLFW_PRESS){
-				del = !del;
-				if(del)
-					std::cout<<"Deletion mode activated\n";
-				else std::cout<<"Insertion mode activated\n";
-			}
-
-			if(del){
-				
-				if(numOfPoints){
-					glm::vec4 popped_point = v_positions_temp[v_positions_temp.size()-1];
-
-					if(newPointsAdded == 3){
-						last_inserted.first = v_positions_temp[v_positions_temp.size()-2];
-						last_inserted.second = v_colors_temp[v_colors_temp.size()-2];
-					}
-					else if(newPointsAdded > 3){
-						last_inserted.first = v_positions_temp[v_positions_temp.size()-4];
-						last_inserted.second = v_colors_temp[v_colors_temp.size()-4];
-					}
-
-					if(newPointsAdded >= 3){
-						for(int i=0;i<3;++i){
-							v_positions_temp.pop_back();
-							v_colors_temp.pop_back();
-						}
-					}
-
-					--newPointsAdded;
-
-					std::map<glm::vec4, int>::iterator it = distinct_vertices.find(popped_point);
-					
-					if(it->second >= 2){
-						it->second = it->second - 1;
-					}
-					else{
-						distinct_vertices.erase(it);
-						--numOfPoints;
-
-						// recalculate centroid
-						vertex_sum.x -= popped_point.x;
-						vertex_sum.y -= popped_point.y;
-						vertex_sum.z -= popped_point.z;
-						
-						centroid = glm::vec3(vertex_sum.x/numOfPoints, vertex_sum.y/numOfPoints, vertex_sum.z/numOfPoints);
-
-					}
-
-					std::cout<<"Last point deleted is ("<<popped_point.x<<","<<popped_point.y<<","<<popped_point.z<<")\n";
-				}
-			}
-			else{
-				glm::vec4 newPoint = glm::vec4(normalized_x, normalized_y, zpos, 1);
-				glm::mat4 inv;
-				inverse_transform(inv);
-				
-				newPoint = inv*newPoint;
-				// add color of point
-				std::cout<<"Enter color in R G B A format: ";
-				GLfloat r, g, b, a;
-				std::cin>>r>>g>>b>>a;
-				glm::vec4 newPointColor = glm::vec4(r,g,b,a);
-				newPointsAdded++;
-
-				if(newPointsAdded == 1)
-					first_inserted = pvec4(newPoint, newPointColor);
-				
-				if(newPointsAdded >= 3){
-					v_positions_temp.push_back(first_inserted.first);
-					v_positions_temp.push_back(last_inserted.first);
-					v_positions_temp.push_back(newPoint);
-
-					v_colors_temp.push_back(first_inserted.second);
-					v_colors_temp.push_back(last_inserted.second);
-					v_colors_temp.push_back(newPointColor);
-				}
-
-				if(newPointsAdded >= 2)
-					last_inserted = pvec4(newPoint, newPointColor);
-
-				std::map<glm::vec4, int>::iterator it = distinct_vertices.find(newPoint);
-				if(it == distinct_vertices.end()){
-					// not found
-					
-					vertex_sum.x += newPoint.x;
-					vertex_sum.y += newPoint.y;
-					vertex_sum.z += newPoint.z;
-					numOfPoints++;
-					distinct_vertices.insert(pvec4i(newPoint,1));
-
-					centroid = glm::vec3(vertex_sum.x/numOfPoints, vertex_sum.y/numOfPoints, vertex_sum.z/numOfPoints);
-
-					std::cout<<"Last point added at ("<<newPoint.x<<","<<newPoint.y<<","<<newPoint.z<<")\n";
-				}
-				else{
-					// found
-					it->second = it->second + 1;
-				}				   	
-			}
-
-			setup_buffer();
-		}
-	}
-}
-
-void model(GLFWwindow* window){	
-	glfwSetMouseButtonCallback(window, mouse_button_callback);
+	// change transformation matrix here
+	transformation_matrix = Awv;
 }
 
 void renderGL(void){
@@ -499,17 +258,11 @@ void renderGL(void){
 	glUniformMatrix4fv(uModelViewMatrix, 1, GL_FALSE, glm::value_ptr(modelview_matrix));
 
 	// Draw 
-	glDrawArrays(GL_TRIANGLES, 0, v_positions_original.size() + v_positions_temp.size());
+	//glDrawArrays(GL_TRIANGLES, 0, v_positions_original.size() + v_positions_temp.size());
 
 }
 
 int main(int argc, char** argv){
-
-	newPointsAdded = 0;
-	numOfPoints = 0;
-
-	vertex_sum = glm::vec3(0,0,0);
-	centroid = glm::vec3(0,0,0);
 
 	//! The pointer to the GLFW window
 	GLFWwindow* window;
@@ -566,31 +319,13 @@ int main(int argc, char** argv){
 	csX75::initGL();
 
 	createShader();
-	initBuffersGL();
+	initialize();
 
 	// Loop until the user closes the window
 	while (glfwWindowShouldClose(window) == 0){
-		if(file_load){
-			load_from_file();
-		}
-
-		if(centroid_translate){
-			set_centroid_as_origin();
-		}
-
+		
 		// Render here
 		renderGL();
-
-		if(file_write){
-			write_to_file();
-		}
-
-		if(modelling_enabled){
-			model(window);
-		}
-		else{
-			newPointsAdded = 0;
-		}
 
 		// Swap front and back buffers
 		glfwSwapBuffers(window);
