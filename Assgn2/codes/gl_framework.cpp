@@ -1,8 +1,6 @@
 #include "gl_framework.hpp"
 
-extern GLfloat xrot, yrot, zrot, xpos, ypos, zpos;
-extern GLboolean file_load, file_write, centroid_translate;
-extern GLboolean modelling_enabled, inspection_enabled;
+extern GLuint pressed1, pressed2, pressed3, pressed4;
 
 namespace csX75
 {
@@ -35,67 +33,22 @@ namespace csX75
   //!GLFW keyboard callback
   void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
   {
-    file_write = 0; file_load = 0; centroid_translate = 0; 
+    pressed1 = 0; pressed2 = 0; pressed3 = 0; pressed4 = 0; 
     
     //!Close the window if the ESC key was pressed
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
       glfwSetWindowShouldClose(window, GL_TRUE);
-    else if (key == GLFW_KEY_LEFT && action == GLFW_PRESS){
-      yrot -= 1.0;
+    else if (key == GLFW_KEY_1 && action == GLFW_PRESS){
+      pressed1 = 1;
     }
-    else if (key == GLFW_KEY_RIGHT && action == GLFW_PRESS){
-      yrot += 1.0;
+    else if (key == GLFW_KEY_2 && action == GLFW_PRESS){
+      pressed2 = 1;
     }
-    else if (key == GLFW_KEY_UP && action == GLFW_PRESS){
-      xrot += 1.0;
+    else if (key == GLFW_KEY_3 && action == GLFW_PRESS){
+      pressed3 = 1;
     }
-    else if (key == GLFW_KEY_DOWN && action == GLFW_PRESS){
-      xrot -= 1.0;
-    }
-    else if (key == GLFW_KEY_PAGE_UP && action == GLFW_PRESS){
-      zrot += 1.0;
-    }
-    else if (key == GLFW_KEY_PAGE_DOWN && action == GLFW_PRESS){
-      zrot -= 1.0;
-    }
-    else if (key == GLFW_KEY_K && action == GLFW_PRESS){
-      file_write = 1;
-    }
-    else if(key == GLFW_KEY_L && action == GLFW_PRESS){
-      file_load = 1;
-    }
-    else if(key == GLFW_KEY_W && action == GLFW_PRESS){
-      ypos += 0.2; 
-    }
-    else if(key == GLFW_KEY_S && action == GLFW_PRESS){
-      ypos -= 0.2; 
-    }
-    else if(key == GLFW_KEY_A && action == GLFW_PRESS){
-      xpos -= 0.2; 
-    }
-    else if(key == GLFW_KEY_D && action == GLFW_PRESS){
-      xpos += 0.2; 
-    }
-    else if(key == GLFW_KEY_Z && action == GLFW_PRESS){
-      zpos += 0.2; 
-    }
-    else if(key == GLFW_KEY_X && action == GLFW_PRESS){
-      zpos -= 0.2; 
-    }
-    else if(key == GLFW_KEY_R && action == GLFW_PRESS){
-      centroid_translate = 1;
-    }
-    else if(key == GLFW_KEY_M && action == GLFW_PRESS){
-      modelling_enabled = 1; 
-      if(modelling_enabled == inspection_enabled)
-        std::cout<<"Modelling enabled\n";
-      inspection_enabled = 0;
-    }
-    else if(key == GLFW_KEY_I && action == GLFW_PRESS){
-      modelling_enabled = 0;
-      if(modelling_enabled == inspection_enabled)
-        std::cout<<"Inspection enabled\n";
-      inspection_enabled = 1;
-    }
+    else if (key == GLFW_KEY_4 && action == GLFW_PRESS){
+      pressed4 = 1;
+    } 
   }
 };

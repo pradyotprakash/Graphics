@@ -4,6 +4,8 @@
 #include <map>
 #include <sstream>
 
+void drawBuffer(int);
+
 const int glmVec4Size = sizeof(glm::vec4);
 const int window_x = 512;
 const int window_y = 512;
@@ -24,6 +26,7 @@ GLuint uModelViewMatrix;
 
 std::vector<GLuint> vao;
 std::vector<std::vector<GLuint> > vbo;
+std::vector<int> sizeOfModels;
 
 void getnVaos(int n){
 	glGenVertexArrays(n, &vao[0]);
@@ -49,32 +52,16 @@ void createShader(){
 	uModelViewMatrix = glGetUniformLocation( shaderProgram, "uModelViewMatrix");
 }
 
-
-//take care of this later on
-void load_onto_buffer(std::vector<glm::vec4> &v_position_data, std::vector<glm::vec4> &v_color_data){
-	
-	// set up vertex arrays
-	GLuint vPosition = glGetAttribLocation( shaderProgram, "vPosition" );
-	glEnableVertexAttribArray( vPosition );
-	glVertexAttribPointer( vPosition, 4, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(0) );
-
-	GLuint vColor = glGetAttribLocation( shaderProgram, "vColor" ); 
-	glEnableVertexAttribArray( vColor );
-	glVertexAttribPointer( vColor, 4, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(v_position_data.size()*glmVec4Size) );
-}
-
 void load_onto_buffer(std::vector<glm::vec4> &vertex_data, std::vector<glm::vec4> &color_data, int i){
 	
 	glBindVertexArray(vao[i]);
 	get2Vbos(i);
 
 	glBindBuffer(GL_ARRAY_BUFFER, vbo[i][0]);
-
 	glBufferData(GL_ARRAY_BUFFER, vertex_data.size()*glmVec4Size, NULL, GL_STATIC_DRAW);
 	glBufferSubData(GL_ARRAY_BUFFER, 0, vertex_data.size()*glmVec4Size, &vertex_data[0]);
 
 	glBindBuffer(GL_ARRAY_BUFFER, vbo[i][1]);
-
 	glBufferData(GL_ARRAY_BUFFER, color_data.size()*glmVec4Size, NULL, GL_STATIC_DRAW);
 	glBufferSubData(GL_ARRAY_BUFFER, 0, color_data.size()*glmVec4Size, &color_data[0]);
 }
@@ -124,7 +111,6 @@ void findTranslationMatrix(std::string s, glm::mat4 &translate){
 	translate = glm::make_mat4(temp);
 }
 
-
 void load_data_from_file(std::string file_name){
 	std::string s;
 
@@ -132,11 +118,10 @@ void load_data_from_file(std::string file_name){
 	int models_loaded = 0;
 
 	while(getline(inp, s)){
-		if(s[0] == '#')
+		if(s[0] == '#' || s[0] == ' ' || s.length() == 0)
 			continue;
 
 		if(models_loaded < 3){
-						
 			std::ifstream model_file(s.c_str());
 
 			std::vector<glm::vec4> vertex_data;
@@ -168,33 +153,40 @@ void load_data_from_file(std::string file_name){
 			}
 
 			load_onto_buffer(vertex_data, color_data, models_loaded);
+			sizeOfModels.push_back(vertex_data.size());
+
 			++models_loaded;
 		}
+		else if(models_loaded == 3){
+			std::stringstream ss;
+			
+			ss<<s;
+			GLfloat a, b, c;
+			ss>>a>>b>>c;
+			eye = glm::vec3(a, b, c);
 
-		std::stringstream ss;
-		ss<<s;
-		GLfloat a, b, c;
-		ss>>a>>b>>c;
-		eye = glm::vec3(a, b, c);
+			getline(inp, s);
+			ss<<s;
+			ss>>a>>b>>c;
+			lookat = glm::vec3(a, b, c);
 
-		getline(inp, s);
-		ss<<s;
-		ss>>a>>b>>c;
-		lookat = glm::vec3(a, b, c);
+			getline(inp, s);
+			ss<<s;
+			ss>>a>>b>>c;
+			up = glm::vec3(a, b, c);
+			models_loaded++;
+		}
+		else if(models_loaded == 4){
+			std::stringstream ss;
+			getline(inp, s);
+			ss<<s;
+			ss>>L>>R>>T>>B;
+			L = -L; B = -B;
 
-		getline(inp, s);
-		ss<<s;
-		ss>>a>>b>>c;
-		up = glm::vec3(a, b, c);
-
-		getline(inp, s);
-		ss<<s;
-		ss>>L>>R>>T>>B;
-		L = -L; B = -B;
-
-		getline(inp, s);
-		ss<<s;
-		ss>>N>>F;
+			getline(inp, s);
+			ss<<s;
+			ss>>N>>F;
+		}
 	}
 }
 
@@ -226,14 +218,14 @@ void create_fustum(){
 
 }
 
-
 void initialize(){
 	vao.resize(4);
 	getnVaos(4);
-	
+
 	vbo.resize(4);
-	for(int i=0;i<4;++i)
+	for(int i=0;i<4;++i){
 		vbo[i].resize(2);
+	}
 
 	load_data_from_file("random");
 	create_fustum();
@@ -242,7 +234,38 @@ void initialize(){
 void transform(){
 
 	// change transformation matrix here
-	transformation_matrix = Awv;
+	if(pressed1){
+		transformation_matrix = Awv;
+	}
+	else if(pressed2){
+		transformation_matrix = Avc * Awv;
+	}
+	else if(pressed3){
+
+	}
+	else if(pressed4){
+
+	}
+	else{
+		transformation_matrix = glm::mat4();
+	}
+}
+
+void drawBuffer(int i){
+	
+	glBindVertexArray(vao[i]);
+	
+	glBindBuffer(GL_ARRAY_BUFFER, vbo[i][0]);
+	GLuint vPosition = glGetAttribLocation( shaderProgram, "vPosition" );
+	glEnableVertexAttribArray( vPosition );
+	glVertexAttribPointer( vPosition, 4, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(0) );
+
+	glBindBuffer(GL_ARRAY_BUFFER, vbo[i][1]);
+	GLuint vColor = glGetAttribLocation( shaderProgram, "vColor" ); 
+	glEnableVertexAttribArray( vColor );
+	glVertexAttribPointer( vColor, 4, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(0) );
+
+	glDrawArrays(GL_TRIANGLES, 0, sizeOfModels[i]);
 }
 
 void renderGL(void){
@@ -257,9 +280,9 @@ void renderGL(void){
 
 	glUniformMatrix4fv(uModelViewMatrix, 1, GL_FALSE, glm::value_ptr(modelview_matrix));
 
-	// Draw 
-	//glDrawArrays(GL_TRIANGLES, 0, v_positions_original.size() + v_positions_temp.size());
-
+	for(int i=0;i<sizeOfModels.size();++i){
+		drawBuffer(i);
+	}
 }
 
 int main(int argc, char** argv){
@@ -337,5 +360,3 @@ int main(int argc, char** argv){
 	glfwTerminate();
 	return 0;
 }
-
-
