@@ -27,7 +27,8 @@ GLuint uModelViewMatrix;
 std::vector<GLuint> vao;
 std::vector<std::vector<GLuint> > vbo;
 std::vector<int> sizeOfModels;
-
+std::vector<glm::vec4> frustum_vertex_data;
+std::vector<glm::vec4> frustum_color_data;
 void getnVaos(int n){
 	glGenVertexArrays(n, &vao[0]);
 }
@@ -211,8 +212,48 @@ void findAwc(){
 	Awc = glm::make_mat4(temp)*Awv;
 }
 
-void create_fustum(){
+void create_frustum(){
+	std::vector<glm::vec4> frustum;
+	std::vector<glm::vec4> frustum_color;
+	//std::vector<glm::vec4> farplane;
+	frustum.push_back(glm::vec4(L, T, -N, 1.0));		// near plane
+	frustum.push_back(glm::vec4(L, B, -N, 1.0));
+	frustum.push_back(glm::vec4(R, B, -N, 1.0));
+	frustum.push_back(glm::vec4(R, T, -N, 1.0));
+	frustum.push_back(glm::vec4(L, T, -N, 1.0));
+	
+	frustum.push_back(glm::vec4(-(F*R / N), T*F / N, -F, 1.0));   //far plane
+	frustum.push_back(glm::vec4(-(F*R / N), -T*F / N, -F, 1.0));
+	frustum.push_back(glm::vec4((F*R / N), -T*F / N, -F, 1.0));
+	frustum.push_back(glm::vec4((F*R / N), T*F / N, -F, 1.0));
+	frustum.push_back(glm::vec4(-(F*R / N), T*F / N, -F, 1.0));
+	
+	frustum.push_back(glm::vec4((F*R / N), T*F / N, -F, 1.0));	
+	frustum.push_back(glm::vec4(R, T, -N, 1.0));					// top right line between planes
+	frustum.push_back(glm::vec4((F*R / N), T*F / N, -F, 1.0));
 
+	frustum.push_back(glm::vec4((F*R / N), -T*F / N, -F, 1.0));
+	frustum.push_back(glm::vec4(R, B, -N, 1.0));					// bottom right line between planes
+	frustum.push_back(glm::vec4((F*R / N), -T*F / N, -F, 1.0));
+
+	frustum.push_back(glm::vec4(-(F*R / N), -T*F / N, -F, 1.0));
+	frustum.push_back(glm::vec4(L, B, -N, 1.0));					// bottom left line between planes
+	frustum.push_back(glm::vec4(-(F*R / N), -T*F / N, -F, 1.0));
+	
+	glm::mat4 invAwv = inverse(Awv);    //inverse of Awv
+	
+	for (int i = 0; i < 19; i++) {
+		frustum[i] = invAwv*frustum[i];			// getting vertex co-ordinates in WCS
+	}
+	
+	
+
+	for (int i = 0; i < 19; i++) {
+		frustum_color.push_back(glm::vec4(1.0, 1.0, 1.0, 1.0));
+	}
+			// the frustum will be made using  gl_line_strip
+
+	load_onto_buffer(frustum,frustum_color,3);				// check if the buffer number i have provided is correct or not
 }
 
 void initialize(){
@@ -225,9 +266,9 @@ void initialize(){
 	}
 
 	load_data_from_file("random");
-	create_fustum();
 	findAwv();
 	findAwc();
+	create_frustum();
 }
 
 void transform(){
@@ -287,9 +328,26 @@ void renderGL(void){
 
 	glUniformMatrix4fv(uModelViewMatrix, 1, GL_FALSE, glm::value_ptr(modelview_matrix));
 
+	int offset=0;
+
 	for(int i=0;i<sizeOfModels.size();++i){
 		drawBuffer(i);
+		offset = offset + sizeOfModels[i];
 	}
+	
+	glBindVertexArray(vao[sizeOfModels.size()]);
+
+	glBindBuffer(GL_ARRAY_BUFFER, vbo[sizeOfModels.size()][0]);
+	GLuint vPosition = glGetAttribLocation(shaderProgram, "vPosition");
+	glEnableVertexAttribArray(vPosition);
+	glVertexAttribPointer(vPosition, 4, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(0));
+
+	glBindBuffer(GL_ARRAY_BUFFER, vbo[sizeOfModels.size()][1]);
+	GLuint vColor = glGetAttribLocation(shaderProgram, "vColor");
+	glEnableVertexAttribArray(vColor);
+	glVertexAttribPointer(vColor, 4, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(0));
+
+	glDrawArrays(GL_LINE_STRIP, 0,19);   // for frustum
 }
 
 int main(int argc, char** argv){
