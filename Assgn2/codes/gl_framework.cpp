@@ -1,6 +1,7 @@
 #include "gl_framework.hpp"
 
 extern GLuint pressed1, pressed2, pressed3, pressed4;
+extern GLfloat xrot, yrot, zrot, xpos, ypos, zpos;
 
 namespace csX75
 {
@@ -49,6 +50,42 @@ namespace csX75
     }
     else if (key == GLFW_KEY_4 && action == GLFW_PRESS){
       pressed4 = 1;
+    }
+    else if(key == GLFW_KEY_W && action == GLFW_PRESS){
+      ypos += 0.2; 
+    }
+    else if(key == GLFW_KEY_S && action == GLFW_PRESS){
+      ypos -= 0.2; 
+    }
+    else if(key == GLFW_KEY_A && action == GLFW_PRESS){
+      xpos -= 0.2; 
+    }
+    else if(key == GLFW_KEY_D && action == GLFW_PRESS){
+      xpos += 0.2; 
+    }
+    else if(key == GLFW_KEY_Z && action == GLFW_PRESS){
+      zpos += 0.2; 
+    }
+    else if(key == GLFW_KEY_X && action == GLFW_PRESS){
+      zpos -= 0.2; 
+    }
+    else if (key == GLFW_KEY_LEFT && action == GLFW_PRESS){
+      yrot -= 1.0;
+    }
+    else if (key == GLFW_KEY_RIGHT && action == GLFW_PRESS){
+      yrot += 1.0;
+    }
+    else if (key == GLFW_KEY_UP && action == GLFW_PRESS){
+      xrot += 1.0;
+    }
+    else if (key == GLFW_KEY_DOWN && action == GLFW_PRESS){
+      xrot -= 1.0;
+    }
+    else if (key == GLFW_KEY_PAGE_UP && action == GLFW_PRESS){
+      zrot += 1.0;
+    }
+    else if (key == GLFW_KEY_PAGE_DOWN && action == GLFW_PRESS){
+      zrot -= 1.0;
     } 
   }
 };

@@ -233,6 +233,12 @@ void initialize(){
 
 void transform(){
 
+	glm::mat4 rot1 = glm::rotate(glm::mat4(1.0f), xrot, glm::vec3(1.0f,0.0f,0.0f));
+	glm::mat4 rot2 = glm::rotate(glm::mat4(1.0f), yrot, glm::vec3(0.0f,1.0f,0.0f));
+	glm::mat4 rot3 = glm::rotate(glm::mat4(1.0f), zrot, glm::vec3(0.0f,0.0f,1.0f));
+
+	glm::mat4 tr2 = glm::translate(glm::mat4(1.0f), glm::vec3(xpos, ypos, zpos));
+
 	// change transformation matrix here
 	if(pressed1){
 		transformation_matrix = Awv;
@@ -249,6 +255,8 @@ void transform(){
 	else{
 		transformation_matrix = glm::mat4();
 	}
+
+	transformation_matrix = tr2*rot1*rot2*rot3*transformation_matrix;
 }
 
 void drawBuffer(int i){
