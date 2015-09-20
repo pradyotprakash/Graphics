@@ -18,7 +18,7 @@ glm::mat4 ortho_matrix;
 glm::mat4 modelview_matrix;
 
 glm::vec3 eye, lookat, up, u, v, n;
-glm::mat4 Awv, Avc, Acn, And;
+glm::mat4 Awv, Awc, Acn, And;
 
 GLfloat L, R, T, B, N, F;
 GLuint shaderProgram;
@@ -116,6 +116,7 @@ void load_data_from_file(std::string file_name){
 
 	std::ifstream inp(file_name.c_str());
 	int models_loaded = 0;
+	GLfloat a, b, c, d, e, f;
 
 	while(getline(inp, s)){
 		if(s[0] == '#' || s[0] == ' ' || s.length() == 0)
@@ -139,8 +140,6 @@ void load_data_from_file(std::string file_name){
 			findTranslationMatrix(s, translate);
 
 			glm::mat4 model_transform_matrix = translate*rotate*scale;
-
-			GLfloat a, b, c, d, e, f;
 			glm::vec4 vertex, color;
 			
 			while(model_file>>a>>b>>c>>d>>e>>f){
@@ -157,35 +156,34 @@ void load_data_from_file(std::string file_name){
 
 			++models_loaded;
 		}
-		else if(models_loaded == 3){
-			std::stringstream ss;
-			
-			ss<<s;
-			GLfloat a, b, c;
+		else if(models_loaded == 3){		
+			std::istringstream ss(s);
 			ss>>a>>b>>c;
 			eye = glm::vec3(a, b, c);
-
-			getline(inp, s);
-			ss<<s;
+			models_loaded++;
+		}
+		else if(models_loaded == 4){
+			std::istringstream ss(s);
 			ss>>a>>b>>c;
 			lookat = glm::vec3(a, b, c);
-
-			getline(inp, s);
-			ss<<s;
+			models_loaded++;
+		}
+		else if(models_loaded == 5){
+			std::istringstream ss(s);
 			ss>>a>>b>>c;
 			up = glm::vec3(a, b, c);
 			models_loaded++;
 		}
-		else if(models_loaded == 4){
-			std::stringstream ss;
-			getline(inp, s);
-			ss<<s;
+		else if(models_loaded == 6){
+			std::istringstream ss(s);
 			ss>>L>>R>>T>>B;
 			L = -L; B = -B;
-
-			getline(inp, s);
-			ss<<s;
+			models_loaded++;
+		}
+		else if(models_loaded == 7){
+			std::istringstream ss(s);
 			ss>>N>>F;
+			models_loaded++;
 		}
 	}
 }
@@ -200,18 +198,17 @@ void findAwv(){
 						u.y, v.y, n.y, 0.0,
 						u.z, v.z, n.z, 0.0,
 						-glm::dot(u, eye), -glm::dot(v, eye), -glm::dot(n, eye), 1};
-
 	Awv = glm::make_mat4(temp);
 }
 
-void findAvc(){
+void findAwc(){
 	
 	GLfloat temp[16] = {2*N/(R-L), 0, 0, 0,
 						0, 2*N/(T-B), 0, 0,
 						(R+L)/(R-L), (T+B)/(T-B), (F+N)/(N-F), -1.0,
 						0, 0, 2*F*N/(N-F), 0};
 
-	Avc = glm::make_mat4(temp);
+	Awc = glm::make_mat4(temp)*Awv;
 }
 
 void create_fustum(){
@@ -229,6 +226,8 @@ void initialize(){
 
 	load_data_from_file("random");
 	create_fustum();
+	findAwv();
+	findAwc();
 }
 
 void transform(){
@@ -244,7 +243,7 @@ void transform(){
 		transformation_matrix = Awv;
 	}
 	else if(pressed2){
-		transformation_matrix = Avc * Awv;
+		transformation_matrix = Awc;
 	}
 	else if(pressed3){
 

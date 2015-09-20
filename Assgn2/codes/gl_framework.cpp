@@ -33,23 +33,21 @@ namespace csX75
   
   //!GLFW keyboard callback
   void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
-  {
-    pressed1 = 0; pressed2 = 0; pressed3 = 0; pressed4 = 0; 
-    
+  {   
     //!Close the window if the ESC key was pressed
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
       glfwSetWindowShouldClose(window, GL_TRUE);
     else if (key == GLFW_KEY_1 && action == GLFW_PRESS){
-      pressed1 = 1;
+      pressed1 = 1; pressed2 = 0; pressed3 = 0; pressed4 = 0; 
     }
     else if (key == GLFW_KEY_2 && action == GLFW_PRESS){
-      pressed2 = 1;
+      pressed1 = 0; pressed2 = 1; pressed3 = 0; pressed4 = 0; 
     }
     else if (key == GLFW_KEY_3 && action == GLFW_PRESS){
-      pressed3 = 1;
+      pressed1 = 0; pressed2 = 0; pressed3 = 1; pressed4 = 0; 
     }
     else if (key == GLFW_KEY_4 && action == GLFW_PRESS){
-      pressed4 = 1;
+      pressed1 = 0; pressed2 = 0; pressed3 = 0; pressed4 = 1; 
     }
     else if(key == GLFW_KEY_W && action == GLFW_PRESS){
       ypos += 0.2; 
