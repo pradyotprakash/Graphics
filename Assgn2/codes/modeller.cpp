@@ -14,11 +14,11 @@ const std::string vs_file = "vs.glsl";
 const std::string fs_file = "fs.glsl";
 
 glm::mat4 transformation_matrix;
-glm::mat4 ortho_matrix;
-glm::mat4 modelview_matrix;
+glm::mat4 ortho_matrix, lookat_matrix;
+glm::mat4 modelview_matrix1, modelview_matrix2;
 
 glm::vec3 eye, lookat, up, u, v, n;
-glm::mat4 Awv, Awc, Acn, And;
+glm::mat4 Awv, Awc, Awndcs, Awdcs;
 
 GLfloat L, R, T, B, N, F;
 GLuint shaderProgram;
@@ -29,6 +29,7 @@ std::vector<std::vector<GLuint> > vbo;
 std::vector<int> sizeOfModels;
 std::vector<glm::vec4> frustum_vertex_data;
 std::vector<glm::vec4> frustum_color_data;
+
 void getnVaos(int n){
 	glGenVertexArrays(n, &vao[0]);
 }
@@ -178,7 +179,6 @@ void load_data_from_file(std::string file_name){
 		else if(models_loaded == 6){
 			std::istringstream ss(s);
 			ss>>L>>R>>T>>B;
-			L = -L; B = -B;
 			models_loaded++;
 		}
 		else if(models_loaded == 7){
@@ -209,7 +209,26 @@ void findAwc(){
 						(R+L)/(R-L), (T+B)/(T-B), (F+N)/(N-F), -1.0,
 						0, 0, 2*F*N/(N-F), 0};
 
+	// GLfloat temp[16] = {2/(R-L), 0, 0, 0,
+	// 					0, 2/(T-B), 0, 0,
+	// 					0, 0, 2/(N-F), 0,
+	// 					(R+L)/(R-L), (T+B)/(T-B), (F+N)/(F-N), 1};
+
 	Awc = glm::make_mat4(temp)*Awv;
+}
+
+void findAwndcs(){
+	Awndcs = Awc;
+}
+
+void findAwdcs(){
+
+	GLfloat temp[16] = {1, 0, 0, 0,
+						0, 1, 0, 0,
+						0, 0, 0.5, 0.5,
+						0, 0, 0, 1};
+
+	Awdcs = glm::make_mat4(temp)*Awc;
 }
 
 void create_frustum(){
@@ -242,18 +261,17 @@ void create_frustum(){
 	
 	glm::mat4 invAwv = inverse(Awv);    //inverse of Awv
 	
-	for (int i = 0; i < 19; i++) {
+	for (int i = 0; i < frustum.size(); i++) {
 		frustum[i] = invAwv*frustum[i];			// getting vertex co-ordinates in WCS
 	}
 	
-	
-
-	for (int i = 0; i < 19; i++) {
+	for (int i = 0; i < frustum.size(); i++) {
 		frustum_color.push_back(glm::vec4(1.0, 1.0, 1.0, 1.0));
 	}
-			// the frustum will be made using  gl_line_strip
+	
+	sizeOfModels.push_back(frustum.size());
 
-	load_onto_buffer(frustum,frustum_color,3);				// check if the buffer number i have provided is correct or not
+	load_onto_buffer(frustum, frustum_color, 3);
 }
 
 void initialize(){
@@ -268,6 +286,9 @@ void initialize(){
 	load_data_from_file("random");
 	findAwv();
 	findAwc();
+	findAwndcs();
+	findAwdcs();
+
 	create_frustum();
 }
 
@@ -276,6 +297,7 @@ void transform(){
 	glm::mat4 rot1 = glm::rotate(glm::mat4(1.0f), xrot, glm::vec3(1.0f,0.0f,0.0f));
 	glm::mat4 rot2 = glm::rotate(glm::mat4(1.0f), yrot, glm::vec3(0.0f,1.0f,0.0f));
 	glm::mat4 rot3 = glm::rotate(glm::mat4(1.0f), zrot, glm::vec3(0.0f,0.0f,1.0f));
+	glm::mat4 scl = glm::scale(glm::mat4(1.0f), glm::vec3(scalex, scaley, scalez));
 
 	glm::mat4 tr2 = glm::translate(glm::mat4(1.0f), glm::vec3(xpos, ypos, zpos));
 
@@ -287,16 +309,16 @@ void transform(){
 		transformation_matrix = Awc;
 	}
 	else if(pressed3){
-
+		transformation_matrix = Awndcs;
 	}
 	else if(pressed4){
-
+		transformation_matrix = Awdcs;
 	}
 	else{
 		transformation_matrix = glm::mat4();
 	}
 
-	transformation_matrix = tr2*rot1*rot2*rot3*transformation_matrix;
+	transformation_matrix = tr2*scl*rot1*rot2*rot3*transformation_matrix;
 }
 
 void drawBuffer(int i){
@@ -313,7 +335,12 @@ void drawBuffer(int i){
 	glEnableVertexAttribArray( vColor );
 	glVertexAttribPointer( vColor, 4, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(0) );
 
-	glDrawArrays(GL_TRIANGLES, 0, sizeOfModels[i]);
+	if(i == sizeOfModels.size() - 1){
+		glDrawArrays(GL_LINE_STRIP, 0, sizeOfModels[i]);   // for frustum 
+	}
+	else{		
+		glDrawArrays(GL_TRIANGLES, 0, sizeOfModels[i]);
+	}
 }
 
 void renderGL(void){
@@ -323,31 +350,15 @@ void renderGL(void){
 	transform();
 
 	ortho_matrix = glm::ortho(-2.0, 2.0, -2.0, 2.0, -2.0, 2.0);
+	lookat_matrix = glm::lookAt(glm::vec3(0, 0, 0), glm::vec3(0, -1, 0), glm::vec3(0, 0, 1));
 
-	modelview_matrix = ortho_matrix * transformation_matrix;
+	modelview_matrix1 = ortho_matrix * transformation_matrix;
 
-	glUniformMatrix4fv(uModelViewMatrix, 1, GL_FALSE, glm::value_ptr(modelview_matrix));
-
-	int offset=0;
-
+	glUniformMatrix4fv(uModelViewMatrix, 1, GL_FALSE, glm::value_ptr(modelview_matrix1));
+	
 	for(int i=0;i<sizeOfModels.size();++i){
 		drawBuffer(i);
-		offset = offset + sizeOfModels[i];
 	}
-	
-	glBindVertexArray(vao[sizeOfModels.size()]);
-
-	glBindBuffer(GL_ARRAY_BUFFER, vbo[sizeOfModels.size()][0]);
-	GLuint vPosition = glGetAttribLocation(shaderProgram, "vPosition");
-	glEnableVertexAttribArray(vPosition);
-	glVertexAttribPointer(vPosition, 4, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(0));
-
-	glBindBuffer(GL_ARRAY_BUFFER, vbo[sizeOfModels.size()][1]);
-	GLuint vColor = glGetAttribLocation(shaderProgram, "vColor");
-	glEnableVertexAttribArray(vColor);
-	glVertexAttribPointer(vColor, 4, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(0));
-
-	glDrawArrays(GL_LINE_STRIP, 0,19);   // for frustum
 }
 
 int main(int argc, char** argv){

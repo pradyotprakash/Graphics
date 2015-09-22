@@ -1,7 +1,7 @@
 #include "gl_framework.hpp"
 
 extern GLuint pressed1, pressed2, pressed3, pressed4;
-extern GLfloat xrot, yrot, zrot, xpos, ypos, zpos;
+extern GLfloat xrot, yrot, zrot, xpos, ypos, zpos, scalex, scaley, scalez;
 
 namespace csX75
 {
@@ -84,6 +84,24 @@ namespace csX75
     }
     else if (key == GLFW_KEY_PAGE_DOWN && action == GLFW_PRESS){
       zrot -= 1.0;
-    } 
+    }
+    else if (key == GLFW_KEY_O && action == GLFW_PRESS){
+      scalex *= 2;
+    }
+    else if (key == GLFW_KEY_P && action == GLFW_PRESS){
+      scalex /= 2;
+    }
+    else if (key == GLFW_KEY_K && action == GLFW_PRESS){
+      scaley *= 2;
+    }
+    else if (key == GLFW_KEY_L && action == GLFW_PRESS){
+      scaley /= 2;
+    }
+    else if (key == GLFW_KEY_N && action == GLFW_PRESS){
+      scalez *= 2;
+    }
+    else if (key == GLFW_KEY_M && action == GLFW_PRESS){
+      scalez /= 2;
+    }
   }
 };
