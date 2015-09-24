@@ -1,14 +1,14 @@
-1models/laptop.raw
+xmodels/laptop.raw
 1 1 1
 0 0 0
 -0.5 -0.5 0
 
-1models/fan.raw
+1models/fan1.raw
 1 1 1
 0 0 180
 0.9 0.8 0
 
-models/hat.raw
+1models/hat.raw
 1 1 1
 0 0 0
 0.5 -0.5 0

@@ -212,7 +212,7 @@ void findAwc(){
 	// GLfloat temp[16] = {2/(R-L), 0, 0, 0,
 	// 					0, 2/(T-B), 0, 0,
 	// 					0, 0, 2/(N-F), 0,
-	// 					(R+L)/(R-L), (T+B)/(T-B), (F+N)/(F-N), 1};
+	// 					-(R+L)/(R-L), -(T+B)/(T-B), -(F+N)/(F-N), 1};
 
 	Awc = glm::make_mat4(temp)*Awv;
 }
@@ -223,8 +223,8 @@ void findAwndcs(){
 
 void findAwdcs(){
 
-	GLfloat temp[16] = {1, 0, 0, 0,
-						0, 1, 0, 0,
+	GLfloat temp[16] = {2, 0, 0, 0,
+						0, 2, 0, 0,
 						0, 0, 0.5, 0.5,
 						0, 0, 0, 1};
 
@@ -356,8 +356,11 @@ void renderGL(void){
 
 	glUniformMatrix4fv(uModelViewMatrix, 1, GL_FALSE, glm::value_ptr(modelview_matrix1));
 	
-	for(int i=0;i<sizeOfModels.size();++i){
+	for(int i=0;i<sizeOfModels.size()-1;++i){
 		drawBuffer(i);
+	}
+	if(!pressed4){
+		drawBuffer(sizeOfModels.size()-1);	
 	}
 }
 
