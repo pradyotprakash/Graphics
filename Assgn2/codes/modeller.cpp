@@ -203,7 +203,7 @@ void findAwv(){
 }
 
 void findAwc(){
-	
+
 	GLfloat temp[16] = {2*N/(R-L), 0, 0, 0,
 						0, 2*N/(T-B), 0, 0,
 						(R+L)/(R-L), (T+B)/(T-B), (F+N)/(N-F), -1.0,
@@ -215,7 +215,14 @@ void findAwc(){
 	// 					-(R+L)/(R-L), -(T+B)/(T-B), -(F+N)/(F-N), 1};
 
 	Awc = glm::make_mat4(temp)*Awv;
-}
+	 GLfloat rot[16]={
+				    1, 0, 0, 0,
+				    0, 1, 0, 0,
+				    0, 0, -1, 0,
+				    0, 0, 0, 1};
+
+  	Awc = glm::transpose(glm::make_mat4(rot))*Awc;
+	}
 
 void findAwndcs(){
 	Awndcs = Awc;
@@ -225,7 +232,7 @@ void findAwdcs(){
 
 	GLfloat temp[16] = {2, 0, 0, 0,
 						0, 2, 0, 0,
-						0, 0, 0.5, 0.5,
+						0, 0, 2, 0,
 						0, 0, 0, 1};
 
 	Awdcs = glm::make_mat4(temp)*Awc;
@@ -234,39 +241,58 @@ void findAwdcs(){
 void create_frustum(){
 	std::vector<glm::vec4> frustum;
 	std::vector<glm::vec4> frustum_color;
-	//std::vector<glm::vec4> farplane;
-	frustum.push_back(glm::vec4(L, T, -N, 1.0));		// near plane
-	frustum.push_back(glm::vec4(L, B, -N, 1.0));
-	frustum.push_back(glm::vec4(R, B, -N, 1.0));
-	frustum.push_back(glm::vec4(R, T, -N, 1.0));
-	frustum.push_back(glm::vec4(L, T, -N, 1.0));
-	
-	frustum.push_back(glm::vec4(-(F*R / N), T*F / N, -F, 1.0));   //far plane
-	frustum.push_back(glm::vec4(-(F*R / N), -T*F / N, -F, 1.0));
-	frustum.push_back(glm::vec4((F*R / N), -T*F / N, -F, 1.0));
-	frustum.push_back(glm::vec4((F*R / N), T*F / N, -F, 1.0));
-	frustum.push_back(glm::vec4(-(F*R / N), T*F / N, -F, 1.0));
-	
-	frustum.push_back(glm::vec4((F*R / N), T*F / N, -F, 1.0));	
-	frustum.push_back(glm::vec4(R, T, -N, 1.0));					// top right line between planes
-	frustum.push_back(glm::vec4((F*R / N), T*F / N, -F, 1.0));
 
-	frustum.push_back(glm::vec4((F*R / N), -T*F / N, -F, 1.0));
-	frustum.push_back(glm::vec4(R, B, -N, 1.0));					// bottom right line between planes
-	frustum.push_back(glm::vec4((F*R / N), -T*F / N, -F, 1.0));
+  frustum.push_back(glm::vec4(0.0,0.0,0.0,1));
+  frustum.push_back(glm::vec4(L,T,-N,1));
+  frustum.push_back(glm::vec4(0.0,0.0,0.0,1));
+  frustum.push_back(glm::vec4(R,T,-N,1));
+  frustum.push_back(glm::vec4(0.0,0.0,0.0,1));
+  frustum.push_back(glm::vec4(L,B,-N,1));
+  frustum.push_back(glm::vec4(0.0,0.0,0.0,1));
+  frustum.push_back(glm::vec4(R,B,-N,1));
 
-	frustum.push_back(glm::vec4(-(F*R / N), -T*F / N, -F, 1.0));
-	frustum.push_back(glm::vec4(L, B, -N, 1.0));					// bottom left line between planes
-	frustum.push_back(glm::vec4(-(F*R / N), -T*F / N, -F, 1.0));
-	
+  frustum.push_back(glm::vec4(L,T,-N,1));
+  frustum.push_back(glm::vec4(L,B,-N,1));
+  frustum.push_back(glm::vec4(R,T,-N,1));
+  frustum.push_back(glm::vec4(L,T,-N,1));
+  frustum.push_back(glm::vec4(R,B,-N,1));
+  frustum.push_back(glm::vec4(R,T,-N,1));
+  frustum.push_back(glm::vec4(L,B,-N,1));
+  frustum.push_back(glm::vec4(R,B,-N,1));
+
+  frustum.push_back(glm::vec4(F/N*L,F/N*T,-F,1));
+  frustum.push_back(glm::vec4(L,T,-N,1));
+  frustum.push_back(glm::vec4(F/N*R,F/N*T,-F,1));
+  frustum.push_back(glm::vec4(R,T,-N,1));
+  frustum.push_back(glm::vec4(F/N*L,F/N*B,-F,1));
+  frustum.push_back(glm::vec4(L,B,-N,1));
+  frustum.push_back(glm::vec4(F/N*R,F/N*B,-F,1));
+  frustum.push_back(glm::vec4(R,B,-N,1));
+
+  frustum.push_back(glm::vec4(F/N*L,F/N*T,-F,1));
+  frustum.push_back(glm::vec4(F/N*L,F/N*B,-F,1));
+  frustum.push_back(glm::vec4(F/N*R,F/N*T,-F,1));
+  frustum.push_back(glm::vec4(F/N*R,F/N*B,-F,1));
+  frustum.push_back(glm::vec4(F/N*L,F/N*T,-F,1));
+  frustum.push_back(glm::vec4(F/N*R,F/N*T,-F,1));
+  frustum.push_back(glm::vec4(F/N*L,F/N*B,-F,1));
+  frustum.push_back(glm::vec4(F/N*R,F/N*B,-F,1));
+
+  frustum.push_back(glm::vec4(0.0,0.0,0.0,1.0));
+  
+  for(int l=0;l<16;l++){
+  frustum_color.push_back(glm::vec4(1,0,1,1));
+  }
+
+  for(int l=0;l<16;l++){
+  frustum_color.push_back(glm::vec4(0,1,1,1));
+  }
+  frustum_color.push_back(glm::vec4(1,0,0,1));
+
 	glm::mat4 invAwv = inverse(Awv);    //inverse of Awv
 	
 	for (int i = 0; i < frustum.size(); i++) {
 		frustum[i] = invAwv*frustum[i];			// getting vertex co-ordinates in WCS
-	}
-	
-	for (int i = 0; i < frustum.size(); i++) {
-		frustum_color.push_back(glm::vec4(1.0, 1.0, 1.0, 1.0));
 	}
 	
 	sizeOfModels.push_back(frustum.size());
@@ -283,7 +309,7 @@ void initialize(){
 		vbo[i].resize(2);
 	}
 
-	load_data_from_file("random");
+	load_data_from_file("myscene.scn");
 	findAwv();
 	findAwc();
 	findAwndcs();
@@ -336,7 +362,10 @@ void drawBuffer(int i){
 	glVertexAttribPointer( vColor, 4, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(0) );
 
 	if(i == sizeOfModels.size() - 1){
-		glDrawArrays(GL_LINE_STRIP, 0, sizeOfModels[i]);   // for frustum 
+		 glLineWidth(10.0);
+  		glPointSize(5.0);
+		glDrawArrays(GL_LINES, 0, sizeOfModels[i]-1);   // for frustum 
+		glDrawArrays(GL_POINTS,sizeOfModels[i]-1,1);
 	}
 	else{		
 		glDrawArrays(GL_TRIANGLES, 0, sizeOfModels[i]);
