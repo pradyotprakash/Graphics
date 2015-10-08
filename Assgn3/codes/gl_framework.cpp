@@ -8,6 +8,7 @@
 extern Humanoid* humanoid;
 extern csX75::HNode* curr_node;
 extern Camera *camera;
+extern bool enable_perspective;
 
 namespace csX75
 {

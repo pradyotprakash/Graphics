@@ -1,16 +1,6 @@
-/*
-  A program which opens a window and draws three arms in a hierarchy
 
-  Use the arrow keys and PgUp,PgDn, 
-  keys to make the arms move.
-
-  Use the keys 1,2 and 3 to switch between arms.
-
-  Written by - 
-               Harshavardhan Kode
-*/
-#ifndef _COLORCUBE_HPP_
-#define _COLORCUBE_HPP_
+#ifndef _STARWARS_HPP_
+#define _STARWARS_HPP_
 
 // Defining the ESCAPE Key Code
 #define ESCAPE 27
@@ -27,6 +17,7 @@
 #include "glm/gtc/type_ptr.hpp"
 #include "hierarchy_node.hpp"
 #include "humanoid.hpp"
+#include "camera.hpp"
 
 /*// Translation Parameters
 GLfloat xpos=0.0,ypos=0.0,zpos=0.0;
@@ -38,11 +29,11 @@ GLfloat c_up_x = 0.0, c_up_y = 1.0, c_up_z = 0.0;
 GLfloat c_xrot=0.0,c_yrot=0.0,c_zrot=0.0;
 
 //Running variable to toggle culling on/off
-bool enable_culling=true;
+bool enable_culling = true;
 //Running variable to toggle wireframe/solid modelling
-bool solid=true;
+bool solid = true;
 //Enable/Disable perspective view
-bool enable_perspective=false;
+bool enable_perspective = false;
 //Shader program attribs
 GLuint vPosition,vColor;
 

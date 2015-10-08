@@ -26,7 +26,9 @@ public:
 
 	Humanoid();
 
-	void create_elem(std::vector <glm::vec4> v_positions,std::vector <glm::vec4> v_colors,int elem);
+	csX75::HNode* create_elem(std::vector <glm::vec4> v_positions, std::vector <glm::vec4> v_colors, int elem);
 
 	csX75::HNode* get_current(int elem);
+
+	csX75::HNode* get_root();
 };

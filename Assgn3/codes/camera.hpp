@@ -22,4 +22,6 @@ public:
 	void update_z(GLfloat z_trans, GLfloat z_rot_v);
 
 	void update_matrices();
+
+	glm::mat4 get_lookat_matrix();
 };

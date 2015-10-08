@@ -9,6 +9,7 @@ Camera::Camera(GLfloat x_pos, GLfloat y_pos, GLfloat z_pos, GLfloat x_rot, GLflo
 	this->z_rot = z_rot;
 
 	x_up = 0; y_up = 1.0; z_up = 0;
+	update_matrices();
 }
 
 Camera::Camera(){
@@ -20,6 +21,7 @@ Camera::Camera(){
 	z_rot = 0.0;	
 
 	x_up = 0; y_up = 1.0; z_up = 0;
+	update_matrices();
 }
 
 void Camera::update_x(GLfloat x_trans, GLfloat x_rot_v){
@@ -56,4 +58,8 @@ void Camera::update_matrices(){
 	
 	lookat_matrix = glm::lookAt(glm::vec3(pos_matrix),glm::vec3(0.0),glm::vec3(up_matrix));
 
+}
+
+glm::mat4 Camera::get_lookat_matrix(){
+	return lookat_matrix;
 }
