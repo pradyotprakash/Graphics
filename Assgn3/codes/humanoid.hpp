@@ -18,11 +18,15 @@
 #define T_ID 15
 #define N_ID 16
 #define H_ID 17
+#define LS1_ID 18
+#define LS2_ID 19
+
 
 
 class Humanoid{
 public:	
-	csX75::HNode *hip,*head, *neck,*shoulder,*torso,*up_arm1,*up_arm2,*l_arm1,*l_arm2,*wrist1,*wrist2,*up_leg1,*up_leg2,*l_leg1,*l_leg2,*foot1,*foot2;	
+	static int sizeOfvec4;
+	csX75::HNode *hip,*head, *neck,*shoulder,*torso,*up_arm1,*up_arm2,*l_arm1,*l_arm2,*wrist1,*wrist2,*up_leg1,*up_leg2,*l_leg1,*l_leg2,*foot1,*foot2,*saber1, *saber2;	
 
 	Humanoid();
 

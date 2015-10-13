@@ -53,6 +53,7 @@ namespace csX75
 		tx=ty=tz=rx=ry=rz=0;
 
 		update_matrices();
+
 	}
 
 	void HNode::update_matrices(){
@@ -62,13 +63,10 @@ namespace csX75
 		rotation = glm::rotate(rotation, glm::radians(rz), glm::vec3(0.0f,0.0f,1.0f));
 
 		translation = glm::translate(glm::mat4(1.0f),glm::vec3(tx,ty,tz));
-
-
 	}
 
 	void HNode::add_child(HNode* a_child){
 		children.push_back(a_child);
-
 	}
 
 	void HNode::change_parameters(GLfloat atx, GLfloat aty, GLfloat atz, GLfloat arx, GLfloat ary, GLfloat arz){

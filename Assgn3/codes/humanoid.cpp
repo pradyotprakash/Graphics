@@ -1,96 +1,127 @@
 #include "humanoid.hpp"
 
-	Humanoid::Humanoid(){}
+	Humanoid::Humanoid(){
+		hip = NULL;
+		head = NULL;
+		neck = NULL;
+		shoulder = NULL;
+		torso = NULL;
+		up_arm1 = NULL;
+		up_arm2 = NULL;
+		l_arm1 = NULL;
+		l_arm2 = NULL;
+		wrist1 = NULL;
+		wrist2 = NULL;
+		up_leg1 = NULL;
+		up_leg2 = NULL;
+		l_leg1 = NULL;
+		l_leg2 = NULL;
+		foot1 = NULL;
+		foot2 = NULL;
+		saber1 =NULL;
+		saber2 = NULL;	
+	}
 
 	csX75::HNode* Humanoid::create_elem(std::vector <glm::vec4> v_positions, std::vector <glm::vec4> v_colors, int elem){
 		csX75::HNode *parent, *curr;
 		
 		if(elem == HIP_ID){
 			parent = NULL;
-			hip = new csX75::HNode(parent, v_positions.size(), &v_positions[0], &v_colors[0], v_positions.size(), v_colors.size());
+			hip = new csX75::HNode(parent, v_positions.size(), &v_positions[0], &v_colors[0], sizeOfvec4*v_positions.size(), sizeOfvec4*v_colors.size());
 			curr = hip;
 		}
 		else if(elem == T_ID){
 			parent = hip;
-			torso = new csX75::HNode(parent, v_positions.size(), &v_positions[0], &v_colors[0], v_positions.size(), v_colors.size());
+			torso = new csX75::HNode(parent, v_positions.size(), &v_positions[0], &v_colors[0], sizeOfvec4*v_positions.size(), sizeOfvec4*v_colors.size());
 			curr = torso;
 		}
 		else if(elem == UL1_ID){
 			parent = torso;
-			up_leg1 = new csX75::HNode(parent, v_positions.size(), &v_positions[0], &v_colors[0], v_positions.size(), v_colors.size());
+			up_leg1 = new csX75::HNode(parent, v_positions.size(), &v_positions[0], &v_colors[0], sizeOfvec4*v_positions.size(), sizeOfvec4*v_colors.size());
 			curr = up_leg1;
 		}
 		else if(elem == UL2_ID){
 			parent = torso;
-			up_leg2 = new csX75::HNode(parent, v_positions.size(), &v_positions[0], &v_colors[0], v_positions.size(), v_colors.size());
+			up_leg2 = new csX75::HNode(parent, v_positions.size(), &v_positions[0], &v_colors[0], sizeOfvec4*v_positions.size(), sizeOfvec4*v_colors.size());
 			curr = up_leg2;
 		}
 		else if(elem == LL1_ID){
 			parent = up_leg1;
-			l_leg1 = new csX75::HNode(parent, v_positions.size(), &v_positions[0], &v_colors[0], v_positions.size(), v_colors.size());
+			l_leg1 = new csX75::HNode(parent, v_positions.size(), &v_positions[0], &v_colors[0], sizeOfvec4*v_positions.size(), sizeOfvec4*v_colors.size());
 			curr = l_leg1;
 		}
 		else if(elem == LL2_ID){
 			parent = up_leg2;
-			l_leg2 = new csX75::HNode(parent, v_positions.size(), &v_positions[0], &v_colors[0], v_positions.size(), v_colors.size());
+			l_leg2 = new csX75::HNode(parent, v_positions.size(), &v_positions[0], &v_colors[0], sizeOfvec4*v_positions.size(), sizeOfvec4*v_colors.size());
 			curr = l_leg2;
 		}
 		else if(elem == F1_ID){
 			parent = l_leg1;
-			foot1 = new csX75::HNode(parent, v_positions.size(), &v_positions[0], &v_colors[0], v_positions.size(), v_colors.size());
+			foot1 = new csX75::HNode(parent, v_positions.size(), &v_positions[0], &v_colors[0], sizeOfvec4*v_positions.size(), sizeOfvec4*v_colors.size());
 			curr = foot1;
 		}
 		else if(elem == F2_ID){
 			parent = l_leg2;
-			foot2 = new csX75::HNode(parent, v_positions.size(), &v_positions[0], &v_colors[0], v_positions.size(), v_colors.size());
+			foot2 = new csX75::HNode(parent, v_positions.size(), &v_positions[0], &v_colors[0], sizeOfvec4*v_positions.size(), sizeOfvec4*v_colors.size());
 			curr = foot2;
 		}
 		else if(elem == S_ID){
 			parent = torso;
-			shoulder = new csX75::HNode(parent, v_positions.size(), &v_positions[0], &v_colors[0], v_positions.size(), v_colors.size());
+			shoulder = new csX75::HNode(parent, v_positions.size(), &v_positions[0], &v_colors[0], sizeOfvec4*v_positions.size(), sizeOfvec4*v_colors.size());
 			curr = shoulder;
 		}
 		else if(elem == N_ID){
 			parent = shoulder;
-			neck = new csX75::HNode(parent, v_positions.size(), &v_positions[0], &v_colors[0], v_positions.size(), v_colors.size());
+			neck = new csX75::HNode(parent, v_positions.size(), &v_positions[0], &v_colors[0], sizeOfvec4*v_positions.size(), sizeOfvec4*v_colors.size());
 			curr = neck;
 		}
 		else if(elem == UA1_ID){
 			parent = shoulder;
-			up_arm1 = new csX75::HNode(parent, v_positions.size(), &v_positions[0], &v_colors[0], v_positions.size(), v_colors.size());
+			up_arm1 = new csX75::HNode(parent, v_positions.size(), &v_positions[0], &v_colors[0], sizeOfvec4*v_positions.size(), sizeOfvec4*v_colors.size());
 			curr = up_arm1;
 		}
 		else if(elem == UA2_ID){
 			parent = shoulder;
-			up_arm2 = new csX75::HNode(parent, v_positions.size(), &v_positions[0], &v_colors[0], v_positions.size(), v_colors.size());
+			up_arm2 = new csX75::HNode(parent, v_positions.size(), &v_positions[0], &v_colors[0], sizeOfvec4*v_positions.size(), sizeOfvec4*v_colors.size());
 			curr = up_arm2;
 		}
 		else if(elem == LA1_ID){
 			parent = up_arm1;
-			l_arm1 = new csX75::HNode(parent, v_positions.size(), &v_positions[0], &v_colors[0], v_positions.size(), v_colors.size());
+			l_arm1 = new csX75::HNode(parent, v_positions.size(), &v_positions[0], &v_colors[0], sizeOfvec4*v_positions.size(), sizeOfvec4*v_colors.size());
 			curr = l_arm1;	
 		}
 		else if(elem == LA2_ID){
 			parent = up_arm2;
-			l_arm2 = new csX75::HNode(parent, v_positions.size(), &v_positions[0], &v_colors[0], v_positions.size(), v_colors.size());
+			l_arm2 = new csX75::HNode(parent, v_positions.size(), &v_positions[0], &v_colors[0], sizeOfvec4*v_positions.size(), sizeOfvec4*v_colors.size());
 			curr = l_arm2;
 		}
 		else if(elem == H_ID){
 			parent = neck;
-			head = new csX75::HNode(parent, v_positions.size(), &v_positions[0], &v_colors[0], v_positions.size(), v_colors.size()); 
+			head = new csX75::HNode(parent, v_positions.size(), &v_positions[0], &v_colors[0], sizeOfvec4*v_positions.size(), sizeOfvec4*v_colors.size()); 
 			curr = head;
 		}
 		else if(elem == W1_ID){
 			parent = l_arm1;
-			wrist1 = new csX75::HNode(parent, v_positions.size(), &v_positions[0], &v_colors[0], v_positions.size(), v_colors.size());
+			wrist1 = new csX75::HNode(parent, v_positions.size(), &v_positions[0], &v_colors[0], sizeOfvec4*v_positions.size(), sizeOfvec4*v_colors.size());
 			curr = wrist1;
 		}
 		else if(elem == W2_ID){
 			parent = l_arm2;
-			wrist2 = new csX75::HNode(parent, v_positions.size(), &v_positions[0], &v_colors[0], v_positions.size(), v_colors.size());
+			wrist2 = new csX75::HNode(parent, v_positions.size(), &v_positions[0], &v_colors[0], sizeOfvec4*v_positions.size(), sizeOfvec4*v_colors.size());
 			curr = wrist2;
 		}
 
+		else if(elem == LS1_ID){
+			parent = wrist1;
+			saber1 = new csX75::HNode(parent, v_positions.size(), &v_positions[0], &v_colors[0], sizeOfvec4*v_positions.size(), sizeOfvec4*v_colors.size());
+			curr = saber1;
+		}
+
+		else if(elem == LS2_ID){
+			parent = wrist2;
+			saber2 = new csX75::HNode(parent, v_positions.size(), &v_positions[0], &v_colors[0], sizeOfvec4*v_positions.size(), sizeOfvec4*v_colors.size());
+			curr = saber2;
+		}
 		return curr;
 	}
 
@@ -147,8 +178,16 @@
 		else if(elem == W2_ID){
 			return wrist2;
 		}
+		else if(elem == LS1_ID){
+			return saber1;
+		}
+		else if(elem == LS2_ID){
+			return saber2;
+		}
 	}
 
 	csX75::HNode* Humanoid::get_root(){
 		return hip;
 	}
+
+	int Humanoid::sizeOfvec4 = sizeof(glm::vec4);	

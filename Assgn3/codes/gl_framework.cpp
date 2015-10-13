@@ -47,7 +47,7 @@ namespace csX75
 		else if (key == GLFW_KEY_1 && action == GLFW_PRESS)
 			curr_node = humanoid->get_current(1);
 		else if (key == GLFW_KEY_2 && action == GLFW_PRESS)
-			curr_node = humanoid->get_current(2);
+			curr_node = humanoid->get_current(15);
 		// else if (key == GLFW_KEY_3 && action == GLFW_PRESS)
 		// 	curr_node = node3; 
 		else if (key == GLFW_KEY_LEFT)
