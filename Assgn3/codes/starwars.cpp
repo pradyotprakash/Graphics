@@ -1,5 +1,6 @@
 #include "starwars.hpp"
-#define PI 3.1415
+#include "texture.hpp"
+#define PI 3.1415926
 
 class Starwars{
 public:
@@ -83,7 +84,7 @@ public:
 	void DrawCylinder(float length, float radius, float radius1, int numSteps,std::vector<glm::vec4> &v_positions, std::vector<glm::vec4> &v_colors, glm::vec4 object_color) {
 	 		float hl = length;
 	 		float a = 0.0f;
-	 		float step = 2.0f * 3.1415926f / (float)numSteps;
+	 		float step = 2.0f * PI / (float)numSteps;
 			float z = 0.0;
 			v_positions.clear();
  
