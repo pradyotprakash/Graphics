@@ -1,15 +1,15 @@
 #include "hierarchy_node.hpp"
-
+#include "constants.hpp"
 #include <iostream>
 
-extern GLuint vPosition,vColor,uModelViewMatrix;
+extern GLuint vPosition2, vColor2, uModelViewMatrix2;
 extern std::vector<glm::mat4> matrixStack;
 
 namespace csX75
 {
 
-	HNode::HNode(HNode* a_parent, GLuint num_v, glm::vec4* a_vertices, glm::vec4* a_colours, std::size_t v_size, std::size_t c_size){
-
+	HNode::HNode(int id, HNode* a_parent, GLuint num_v, glm::vec4* a_vertices, glm::vec4* a_colours, std::size_t v_size, std::size_t c_size){
+		ID = id;
 		num_vertices = num_v;
 		vertex_buffer_size = v_size;
 		color_buffer_size = c_size;
@@ -31,11 +31,11 @@ namespace csX75
 		glBufferSubData( GL_ARRAY_BUFFER, vertex_buffer_size, color_buffer_size, a_colours );
 
 		//setup the vertex array as per the shader
-		glEnableVertexAttribArray( vPosition );
-		glVertexAttribPointer( vPosition, 4, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(0) );
+		glEnableVertexAttribArray( vPosition2 );
+		glVertexAttribPointer( vPosition2, 4, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(0) );
 
-		glEnableVertexAttribArray( vColor );
-		glVertexAttribPointer( vColor, 4, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(vertex_buffer_size));
+		glEnableVertexAttribArray( vColor2 );
+		glVertexAttribPointer( vColor2, 4, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(vertex_buffer_size));
 
 
 		// set parent
@@ -54,6 +54,10 @@ namespace csX75
 
 		update_matrices();
 
+	}
+
+	void sanity_check(){
+		// defines the constraints for each node movement
 	}
 
 	void HNode::update_matrices(){
@@ -85,7 +89,7 @@ namespace csX75
 		//matrixStack multiply
 		glm::mat4* ms_mult = multiply_stack(matrixStack);
 
-		glUniformMatrix4fv(uModelViewMatrix, 1, GL_FALSE, glm::value_ptr(*ms_mult));
+		glUniformMatrix4fv(uModelViewMatrix2, 1, GL_FALSE, glm::value_ptr(*ms_mult));
 		glBindVertexArray (vao);
 		glDrawArrays(GL_TRIANGLES, 0, num_vertices);
 
@@ -109,33 +113,33 @@ namespace csX75
 	}
 
 	void HNode::inc_rx(){
-		rx++;
+		rx += 2;
 		update_matrices();
 	}
 
 
 	void HNode::inc_ry(){
-		ry++;
+		ry += 2;
 		update_matrices();
 	}
 
 	void HNode::inc_rz(){
-		rz++;
+		rz += 2;
 		update_matrices();
 	}
 
 	void HNode::dec_rx(){
-		rx--;
+		rx -= 2;
 		update_matrices();
 	}
 
 	void HNode::dec_ry(){
-		ry--;
+		ry -= 2;
 		update_matrices();
 	}
 
 	void HNode::dec_rz(){
-		rz--;
+		rz -= 2;
 		update_matrices();
 	}
 

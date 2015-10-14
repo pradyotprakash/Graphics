@@ -22,7 +22,7 @@ namespace csX75	 {
 		//glm::vec4 * vertices;
 		//glm::vec4 * colors;
 		GLfloat tx,ty,tz,rx,ry,rz;
-
+		int ID;
 		std::size_t vertex_buffer_size;
 		std::size_t color_buffer_size;
 
@@ -38,9 +38,10 @@ namespace csX75	 {
 		void update_matrices();
 
 	  public:
-		HNode (HNode*, GLuint, glm::vec4*,  glm::vec4*, std::size_t, std::size_t);
+		HNode (int, HNode*, GLuint, glm::vec4*,  glm::vec4*, std::size_t, std::size_t);
 		//HNode (HNode* , glm::vec4*,  glm::vec4*,GLfloat,GLfloat,GLfloat,GLfloat,GLfloat,GLfloat);
 
+		void sanity_check();
 		void add_child(HNode*);
 		void render();
 		void change_parameters(GLfloat,GLfloat,GLfloat,GLfloat,GLfloat,GLfloat);
@@ -54,6 +55,7 @@ namespace csX75	 {
 	};
 
 	glm::mat4* multiply_stack(std::vector <glm::mat4> );
+
 };	
 
 #endif

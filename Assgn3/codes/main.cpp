@@ -1,7 +1,5 @@
 #include "starwars.cpp"
 
-Starwars *starwars;
-
 int main(int argc, char** argv)
 {
 	//! The pointer to the GLFW window
@@ -23,7 +21,7 @@ int main(int argc, char** argv)
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE); 
 
 	//! Create a windowed mode window and its OpenGL context
-	window = glfwCreateWindow(512, 512, "Star Wars", NULL, NULL);
+	window = glfwCreateWindow(700, 700, "Star Wars", NULL, NULL);
 	if (!window)
 	{
 		glfwTerminate();
@@ -59,6 +57,7 @@ int main(int argc, char** argv)
 
 	//Initialize GL state
 	csX75::initGL();
+	Starwars *starwars = new Starwars();
 	starwars->initBuffersGL();
 
 	// Loop until the user closes the window

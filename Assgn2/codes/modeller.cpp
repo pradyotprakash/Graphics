@@ -362,7 +362,7 @@ void drawBuffer(int i){
 	glVertexAttribPointer( vColor, 4, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(0) );
 
 	if(i == sizeOfModels.size() - 1){
-		 glLineWidth(10.0);
+		glLineWidth(10.0);
   		glPointSize(5.0);
 		glDrawArrays(GL_LINES, 0, sizeOfModels[i]-1);   // for frustum 
 		glDrawArrays(GL_POINTS,sizeOfModels[i]-1,1);

@@ -4,7 +4,7 @@
 
 class Starwars{
 public:
-	GLuint shaderProgram;
+	GLuint shaderProgram1, shaderProgram2;
 
 	glm::mat4 rotation_matrix;
 	glm::mat4 projection_matrix;
@@ -16,9 +16,18 @@ public:
 
 	glm::mat4 modelview_matrix;
 
+	std::vector<GLuint> vao_array, vbo_array;
+	std::vector<int> num_vertices;
+	std::vector<glm::vec2> t_coords;
+
 	Starwars(){
 		humanoid = new Humanoid();
 		camera = new Camera();
+
+		t_coords.push_back(glm::vec2( 0.0, 0.0));
+		t_coords.push_back(glm::vec2( 0.0, 1.0));
+		t_coords.push_back(glm::vec2( 1.0, 0.0));
+		t_coords.push_back(glm::vec2( 1.0, 1.0));
 	}
 
 	void make_pyramid(GLfloat height, GLfloat width, std::vector<glm::vec4> &v_positions, std::vector<glm::vec4> &v_colors, glm::vec4 object_color ){
@@ -78,51 +87,49 @@ public:
 			v_colors.push_back(object_color);
 			/* code */
 		}
-
 	}
 
-	void DrawCylinder(float length, float radius, float radius1, int numSteps,std::vector<glm::vec4> &v_positions, std::vector<glm::vec4> &v_colors, glm::vec4 object_color) {
-	 		float hl = length;
-	 		float a = 0.0f;
-	 		float step = 2.0f * PI / (float)numSteps;
-			float z = 0.0;
-			v_positions.clear();
- 
-		 	for (int i = 0; i < numSteps; ++i)
-			{
-		 		float x1 = cosf(a) * radius;
-		 		float y1 = sinf(a) * radius;
-				float x2 = cosf(a) * radius1;
-				float y2 = sinf(a) * radius1;
-				float next_x1 = cosf(a + step)*radius;
-				float next_y1 = sinf(a + step)*radius;
-				float next_x2 = cosf(a + step)*radius1;
-				float next_y2 = sinf(a + step)*radius1;
-		 		v_positions.push_back(glm::vec4(x2, y2, hl, 1.0));
-		 		v_positions.push_back(glm::vec4(x1, y1, 0.0, 1.0));
-				v_positions.push_back(glm::vec4(next_x2,next_y2, hl, 1.0));
-				v_positions.push_back(glm::vec4(next_x2, next_y2, hl, 1.0));
-				v_positions.push_back(glm::vec4(next_x1, next_y1, 0, 1.0));
-				v_positions.push_back(glm::vec4(x1, y1,0, 1.0));
-		 		a += step;
-			}
-			
-			v_colors.clear();
-			for (int i = 0; i < v_positions.size(); ++i)
-			{	
-				v_colors.push_back(object_color);
-				/* code */
-			}
+	void draw_cylinder(float length, float radius, float radius1, int numSteps,std::vector<glm::vec4> &v_positions, std::vector<glm::vec4> &v_colors, glm::vec4 object_color) {
+ 		float hl = length;
+ 		float a = 0.0f;
+ 		float step = 2.0f * PI / (float)numSteps;
+		float z = 0.0;
+		v_positions.clear();
 
+	 	for (int i = 0; i < numSteps; ++i)
+		{
+	 		float x1 = cosf(a) * radius;
+	 		float y1 = sinf(a) * radius;
+			float x2 = cosf(a) * radius1;
+			float y2 = sinf(a) * radius1;
+			float next_x1 = cosf(a + step)*radius;
+			float next_y1 = sinf(a + step)*radius;
+			float next_x2 = cosf(a + step)*radius1;
+			float next_y2 = sinf(a + step)*radius1;
+	 		v_positions.push_back(glm::vec4(x2, y2, hl, 1.0));
+	 		v_positions.push_back(glm::vec4(x1, y1, 0.0, 1.0));
+			v_positions.push_back(glm::vec4(next_x2,next_y2, hl, 1.0));
+			v_positions.push_back(glm::vec4(next_x2, next_y2, hl, 1.0));
+			v_positions.push_back(glm::vec4(next_x1, next_y1, 0, 1.0));
+			v_positions.push_back(glm::vec4(x1, y1,0, 1.0));
+	 		a += step;
+		}
+		
+		v_colors.clear();
+		for (int i = 0; i < v_positions.size(); ++i)
+		{	
+			v_colors.push_back(object_color);
+			/* code */
+		}
 	}
 
 
 	void create_humanoid(){
-		
+
 		std::vector<glm::vec4> v_positions, v_colors;
 		csX75::HNode* curr;
 		
-		//make_pyramid(1, 1, v_positions, v_colors);
+		// hip
 		curr = humanoid->create_elem(v_positions, v_colors, 1);
 
 		// torso
@@ -189,7 +196,6 @@ public:
 		curr->change_parameters(-1.55,-2.7,0,0,0,120);
 
 		// left  wrist
-		//make_pyramid(1, 0.1, v_positions, v_colors, glm::vec4(0,0,1,1));
 		make_triangle(0.7, 0.5, 45,v_positions, v_colors, glm::vec4(0.5,0.3,0.2,1));
 		curr = humanoid->create_elem(v_positions, v_colors, 6);
 		curr->change_parameters(0,0,0,0,0,0);		
@@ -204,48 +210,125 @@ public:
 		curr = humanoid->create_elem(v_positions, v_colors, 5);
 		curr->change_parameters(1.55,-2.7,0,0,0,-120);
 
-
 		// right  wrist
-		//make_pyramid(1, 0.1, v_positions, v_colors, glm::vec4(0,0,1,1));
 		make_triangle(0.7, 0.5, 135,v_positions, v_colors, glm::vec4(0.5,0.3,0.2,1));
 		curr = humanoid->create_elem(v_positions, v_colors, 7);
 		curr->change_parameters(0,0,0,0,0,0);		
 
-		// //left lightsaber
-		 DrawCylinder(3.7,0.1,0.1,300,v_positions,v_colors,glm::vec4(0.7,0.3,0.2,1));
-		 curr = humanoid->create_elem(v_positions, v_colors, 18);
-		 curr->change_parameters(0,0.1,0,0,90,0);
+		//left lightsaber
+		draw_cylinder(3.7,0.1,0.1,300,v_positions,v_colors,glm::vec4(0.7,0.3,0.2,1));
+		curr = humanoid->create_elem(v_positions, v_colors, 18);
+		curr->change_parameters(0,0.1,0,0,90,0);
 
-
-		// //RIGHT lightsaber
-		 DrawCylinder(3.7,0.1,0.1,300,v_positions,v_colors,glm::vec4(0.7,0.3,0.2,1));
-		 curr = humanoid->create_elem(v_positions, v_colors, 19);
-		 curr->change_parameters(0,0.1,0,0,-90,0);
+		//RIGHT lightsaber
+		draw_cylinder(3.7,0.1,0.1,300,v_positions,v_colors,glm::vec4(0.7,0.3,0.2,1));
+		curr = humanoid->create_elem(v_positions, v_colors, 19);
+		curr->change_parameters(0,0.1,0,0,-90,0);
 
 		curr_node = humanoid->get_root();
 	}
 
+	void create_static_object(std::vector<glm::vec4> &a_vertices, std::vector<glm::vec4> &a_colours, std::vector<glm::vec2> &a_tex){
+
+		GLuint vao, vbo;
+		glGenVertexArrays (1, &vao);
+		glGenBuffers (1, &vbo);
+		
+		num_vertices.push_back(a_vertices.size());
+		vao_array.push_back(vao);
+		vbo_array.push_back(vbo);
+		
+		glBindVertexArray (vao);
+		glBindBuffer (GL_ARRAY_BUFFER, vbo);
+
+		glBufferData (GL_ARRAY_BUFFER, (a_colours.size() + a_vertices.size())*sizeof(glm::vec4) + a_tex.size()*sizeof(glm::vec4), NULL, GL_STATIC_DRAW);
+		glBufferSubData( GL_ARRAY_BUFFER, 0, a_vertices.size()*sizeof(glm::vec4), &a_vertices[0]);
+		glBufferSubData( GL_ARRAY_BUFFER, a_vertices.size()*sizeof(glm::vec4), a_colours.size()*sizeof(glm::vec4), &a_colours[0]);
+		glBufferSubData( GL_ARRAY_BUFFER, a_vertices.size()*sizeof(glm::vec4) + a_colours.size()*sizeof(glm::vec4), a_tex.size()*sizeof(glm::vec2), &a_tex[0]);
+
+		//setup the vertex array as per the shader
+		glEnableVertexAttribArray( vPosition1 );
+		glVertexAttribPointer( vPosition1, 4, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(0) );
+
+		glEnableVertexAttribArray( vColor1 );
+		glVertexAttribPointer( vColor1, 4, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(a_vertices.size()*sizeof(glm::vec4)));
+
+		glEnableVertexAttribArray( texCoord1 );
+  		glVertexAttribPointer( texCoord1, 2, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET((a_vertices.size() + a_colours.size())*sizeof(glm::vec4)));
+	}
+
+	void create_floor(){
+		std::vector<glm::vec4> a_vertices, a_colours;
+		std::vector<glm::vec2> a_tex;
+		int x = 6;
+		a_vertices.push_back(glm::vec4(-7.0, -x, 7.0, 1.0));
+		a_tex.push_back(t_coords[0]);
+		a_vertices.push_back(glm::vec4(7.0, -x, 7.0, 1.0));
+		a_tex.push_back(t_coords[2]);
+		a_vertices.push_back(glm::vec4(7.0, -x, -7.0, 1.0));
+		a_tex.push_back(t_coords[3]);
+		a_vertices.push_back(glm::vec4(7.0, -x, -7.0, 1.0));
+		a_tex.push_back(t_coords[3]);
+		a_vertices.push_back(glm::vec4(-7.0, -x, -7.0, 1.0));
+		a_tex.push_back(t_coords[1]);
+		a_vertices.push_back(glm::vec4(-7.0, -x, 7.0, 1.0));
+		a_tex.push_back(t_coords[0]);
+
+		for(int i=0;i<6;++i){
+			a_colours.push_back(glm::vec4(1.0, 1.0, 1.0, 1.0));
+		}
+	
+		create_static_object(a_vertices, a_colours, a_tex);
+	}
+
 	void initBuffersGL(void)
 	{
+		{
+			std::string vertex_shader_file("vshader1.glsl");
+			std::string fragment_shader_file("fshader1.glsl");
 
-		// Load shaders and use the resulting shader program
-		std::string vertex_shader_file("vshader.glsl");
-		std::string fragment_shader_file("fshader.glsl");
+			std::vector<GLuint> shaderList;
+			shaderList.push_back(csX75::LoadShaderGL(GL_VERTEX_SHADER, vertex_shader_file));
+			shaderList.push_back(csX75::LoadShaderGL(GL_FRAGMENT_SHADER, fragment_shader_file));
 
-		std::vector<GLuint> shaderList;
-		shaderList.push_back(csX75::LoadShaderGL(GL_VERTEX_SHADER, vertex_shader_file));
-		shaderList.push_back(csX75::LoadShaderGL(GL_FRAGMENT_SHADER, fragment_shader_file));
+			shaderProgram1 = csX75::CreateProgramGL(shaderList);
+			glUseProgram( shaderProgram1 );
 
-		shaderProgram = csX75::CreateProgramGL(shaderList);
-		glUseProgram( shaderProgram );
+			// getting the attributes from the shader program
+			vPosition1 = glGetAttribLocation( shaderProgram1, "vPosition" );
+			vColor1 = glGetAttribLocation( shaderProgram1, "vColor" );
+			texCoord1 = glGetAttribLocation( shaderProgram1, "texCoord" );
+			uModelViewMatrix1 = glGetUniformLocation( shaderProgram1, "uModelViewMatrix");
 
-		// getting the attributes from the shader program
-		vPosition = glGetAttribLocation( shaderProgram, "vPosition" );
-		vColor = glGetAttribLocation( shaderProgram, "vColor" ); 
-		uModelViewMatrix = glGetUniformLocation( shaderProgram, "uModelViewMatrix");
+			GLuint tex = LoadTexture("images/cubemap.bmp", 512, 512);
+	  		glBindTexture(GL_TEXTURE_2D, tex);
 
-		create_humanoid();
+			create_floor();
+		}	
 
+		{
+			std::string vertex_shader_file("vshader2.glsl");
+			std::string fragment_shader_file("fshader2.glsl");
+
+			std::vector<GLuint> shaderList;
+			shaderList.push_back(csX75::LoadShaderGL(GL_VERTEX_SHADER, vertex_shader_file));
+			shaderList.push_back(csX75::LoadShaderGL(GL_FRAGMENT_SHADER, fragment_shader_file));
+
+			shaderProgram2 = csX75::CreateProgramGL(shaderList);
+			glUseProgram( shaderProgram2 );
+
+			// getting the attributes from the shader program
+			vPosition2 = glGetAttribLocation( shaderProgram2, "vPosition" );
+			vColor2 = glGetAttribLocation( shaderProgram2, "vColor" );
+			uModelViewMatrix2 = glGetUniformLocation( shaderProgram2, "uModelViewMatrix");
+
+			create_humanoid();
+		}
+	}
+
+	void draw_buffer(int i){
+		glBindVertexArray(vao_array[i]);
+		glDrawArrays(GL_TRIANGLES, 0, num_vertices[i]);
 	}
 
 	void renderGL(void)
@@ -260,14 +343,21 @@ public:
 		if(enable_perspective)
 			projection_matrix = glm::frustum(-7.0, 7.0, -7.0, 7.0, 1.0, 7.0);
 		else
-			projection_matrix = glm::ortho(-7.0, 7.0, -7.0, 7.0, -5.0, 5.0);
+			projection_matrix = glm::ortho(-7.0, 7.0, -7.0, 7.0, -7.0, 7.0);
 
 		view_matrix = projection_matrix*lookat_matrix;
 
+		glUniformMatrix4fv(uModelViewMatrix1, 1, GL_FALSE, glm::value_ptr(view_matrix));
+		glUseProgram(shaderProgram1);
+		for(int i=0;i<vao_array.size();++i){
+			draw_buffer(i);
+		}
+
+		glUniformMatrix4fv(uModelViewMatrix2, 1, GL_FALSE, glm::value_ptr(view_matrix));
+		glUseProgram(shaderProgram2);
 		matrixStack.push_back(view_matrix);
-
+		
 		humanoid->get_root()->render_tree();
-
 	}
 };
 
@@ -292,7 +382,7 @@ int main(int argc, char** argv)
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE); 
 
 	//! Create a windowed mode window and its OpenGL context
-	window = glfwCreateWindow(512, 512, "Star Wars", NULL, NULL);
+	window = glfwCreateWindow(1000, 750, "Star Wars", NULL, NULL);
 	if (!window)
 	{
 		glfwTerminate();
