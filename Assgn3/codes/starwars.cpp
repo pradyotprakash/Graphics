@@ -149,10 +149,15 @@ public:
 		curr = humanoid->create_elem(v_positions, v_colors, 8);
 		curr->change_parameters(-0.43,-2.75,0.0,0.0,0.0,-30);
 
+		// left knee
+		make_pyramid(0, 0, v_positions, v_colors, glm::vec4(0,0,0,1));
+		curr = humanoid->create_elem(v_positions, v_colors, KNEE_LEFT);
+		curr->change_parameters(0,-2.5,0,0,0,0);
+
 		// lower left leg
 		make_pyramid(2, 0.7, v_positions, v_colors, glm::vec4(0,0,1,1));
 		curr = humanoid->create_elem(v_positions, v_colors, 10);
-		curr->change_parameters(0.95,-4.1,0.0,0.0,0.0,30+180);
+		curr->change_parameters(0.95,-1.6,0.0,0.0,0.0,30+180);
 
 		// left leg foot
 		make_triangle(1, 1, 90, v_positions, v_colors, glm::vec4(0.5,0.3,0.2,1));
@@ -164,10 +169,15 @@ public:
 		curr = humanoid->create_elem(v_positions, v_colors, 9);
 		curr->change_parameters(0.43,-2.75,0.0,0.0,0.0,30);
 
+		// right knee
+		make_pyramid(0, 0, v_positions, v_colors, glm::vec4(0,0,0,1));
+		curr = humanoid->create_elem(v_positions, v_colors, KNEE_RIGHT);
+		curr->change_parameters(0,-2.5,0,0,0,0);
+
 		// lower right leg
 		make_pyramid(2, 0.7, v_positions, v_colors, glm::vec4(0,0,1,1));
 		curr = humanoid->create_elem(v_positions, v_colors, 11);
-		curr->change_parameters(-0.95,-4.1,0.0,0.0,0.0,-30+180);
+		curr->change_parameters(-0.95,-1.6,0.0,0.0,0.0,-30+180);
 
 		// right leg foot
 		make_triangle(1, 1,90, v_positions, v_colors, glm::vec4(0.5,0.3,0.2,1));
@@ -193,13 +203,14 @@ public:
 		curr->change_parameters(-0.5,0,0,0,0,-50);
 
 		// left elbow
-		make_pyramid(0, 0, v_positions, v_colors, glm::vec4(1,1,0.2,1));
+		make_pyramid(0, 0, v_positions, v_colors, glm::vec4(0,0,0,1));
 		curr = humanoid->create_elem(v_positions, v_colors, ELBOW_LEFT);
+		curr->change_parameters(0,-1.8,0,0,0,0);
 
 		// left lower arm
 		make_pyramid(1.8, 0.5, v_positions, v_colors, glm::vec4(0.3,0.8,0.7,1));
 		curr = humanoid->create_elem(v_positions, v_colors, 4);
-		curr->change_parameters(-1.55,-2.7,0,0,0,120);
+		curr->change_parameters(-1.55,-0.9,0,0,0,120);
 
 		// left  wrist
 		make_triangle(0.7, 0.5, 45,v_positions, v_colors, glm::vec4(0.5,0.3,0.2,1));
@@ -212,13 +223,14 @@ public:
 		curr->change_parameters(0.5,0,0,0,0,50);
 
 		// right elbow
-		make_pyramid(0, 0, v_positions, v_colors, glm::vec4(1,1,0.2,1));
+		make_pyramid(0, 0, v_positions, v_colors, glm::vec4(0,0,0,1));
 		curr = humanoid->create_elem(v_positions, v_colors, ELBOW_RIGHT);
+		curr->change_parameters(0,-1.8,0,0,0,0);
 
 		// right lower arm
 		make_pyramid(1.8, 0.5, v_positions, v_colors, glm::vec4(0.3,0.8,0.7,1));
 		curr = humanoid->create_elem(v_positions, v_colors, 5);
-		curr->change_parameters(1.55,-2.7,0,0,0,-120);
+		curr->change_parameters(1.55,-0.9,0,0,0,-120);
 
 		// right  wrist
 		make_triangle(0.7, 0.5, 135,v_positions, v_colors, glm::vec4(0.5,0.3,0.2,1));

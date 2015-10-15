@@ -7,7 +7,7 @@
 class Humanoid{
 public:	
 	static int sizeOfvec4;
-	csX75::HNode *elbow1, *elbow2, *hip,*head, *neck,*shoulder,*torso,*up_arm1,*up_arm2,*l_arm1,*l_arm2,*wrist1,*wrist2,*up_leg1,*up_leg2,*l_leg1,*l_leg2,*foot1,*foot2,*saber1, *saber2;	
+	csX75::HNode *knee1, *knee2, *elbow1, *elbow2, *hip,*head, *neck,*shoulder,*torso,*up_arm1,*up_arm2,*l_arm1,*l_arm2,*wrist1,*wrist2,*up_leg1,*up_leg2,*l_leg1,*l_leg2,*foot1,*foot2,*saber1, *saber2;	
 
 	Humanoid();
 

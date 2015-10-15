@@ -71,10 +71,10 @@ namespace csX75
 			curr_node = humanoid->get_current(UPPER_LEG_LEFT);
 		}
 		else if (key == GLFW_KEY_L && action == GLFW_PRESS){
-			curr_node = humanoid->get_current(LOWER_LEG_RIGHT);
+			curr_node = humanoid->get_current(KNEE_RIGHT);
 		}
 		else if (key == GLFW_KEY_O && action == GLFW_PRESS){
-			curr_node = humanoid->get_current(LOWER_LEG_LEFT);
+			curr_node = humanoid->get_current(KNEE_LEFT);
 		}
 		else if (key == GLFW_KEY_SEMICOLON && action == GLFW_PRESS){
 			curr_node = humanoid->get_current(FOOT_RIGHT);

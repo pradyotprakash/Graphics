@@ -1,27 +1,7 @@
 #include "humanoid.hpp"
 
 	Humanoid::Humanoid(){
-		hip = NULL;
-		head = NULL;
-		neck = NULL;
-		shoulder = NULL;
-		torso = NULL;
-		up_arm1 = NULL;
-		up_arm2 = NULL;
-		l_arm1 = NULL;
-		l_arm2 = NULL;
-		wrist1 = NULL;
-		wrist2 = NULL;
-		up_leg1 = NULL;
-		up_leg2 = NULL;
-		l_leg1 = NULL;
-		l_leg2 = NULL;
-		foot1 = NULL;
-		foot2 = NULL;
-		saber1 =NULL;
-		saber2 = NULL;	
-		elbow1 = NULL;
-		elbow2 = NULL;
+		hip = head = neck = shoulder = torso = up_arm1 = up_arm2 = l_arm1 = l_arm2 = wrist1 = wrist2 = up_leg1 = up_leg2 = l_leg1 = l_leg2 = foot1 = foot2 = saber1 = saber2 = elbow1 = elbow2 = knee1 = knee2 = NULL;
 	}
 
 	csX75::HNode* Humanoid::create_elem(std::vector <glm::vec4> v_positions, std::vector <glm::vec4> v_colors, int elem){
@@ -47,13 +27,23 @@
 			up_leg2 = new csX75::HNode(elem, parent, v_positions.size(), &v_positions[0], &v_colors[0], sizeOfvec4*v_positions.size(), sizeOfvec4*v_colors.size());
 			curr = up_leg2;
 		}
-		else if(elem == LOWER_LEG_LEFT){
+		else if(elem == KNEE_LEFT){
 			parent = up_leg1;
+			knee1 = new csX75::HNode(elem, parent, v_positions.size(), &v_positions[0], &v_colors[0], sizeOfvec4*v_positions.size(), sizeOfvec4*v_colors.size());
+			curr = knee1;
+		}
+		else if(elem == KNEE_RIGHT){
+			parent = up_leg2;
+			knee2 = new csX75::HNode(elem, parent, v_positions.size(), &v_positions[0], &v_colors[0], sizeOfvec4*v_positions.size(), sizeOfvec4*v_colors.size());
+			curr = knee2;
+		}
+		else if(elem == LOWER_LEG_LEFT){
+			parent = knee1;
 			l_leg1 = new csX75::HNode(elem, parent, v_positions.size(), &v_positions[0], &v_colors[0], sizeOfvec4*v_positions.size(), sizeOfvec4*v_colors.size());
 			curr = l_leg1;
 		}
 		else if(elem == LOWER_LEG_RIGHT){
-			parent = up_leg2;
+			parent = knee2;
 			l_leg2 = new csX75::HNode(elem, parent, v_positions.size(), &v_positions[0], &v_colors[0], sizeOfvec4*v_positions.size(), sizeOfvec4*v_colors.size());
 			curr = l_leg2;
 		}
@@ -199,6 +189,12 @@
 		}
 		else if(elem == ELBOW_LEFT){
 			return elbow1;
+		}
+		else if(elem == KNEE_RIGHT){
+			return knee2;
+		}
+		else if(elem == KNEE_LEFT){
+			return knee1;
 		}
 	}
 
