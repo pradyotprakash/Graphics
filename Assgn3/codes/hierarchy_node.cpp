@@ -50,7 +50,7 @@ namespace csX75
 
 		//initial parameters are set to 0;
 
-		tx=ty=tz=rx=ry=rz=0;
+		tx=ty=tz=rx=ry=rz=px=py=pz=0;
 
 		update_matrices();
 
@@ -62,11 +62,13 @@ namespace csX75
 
 	void HNode::update_matrices(){
 
-		rotation = glm::rotate(glm::mat4(1.0f), glm::radians(rx), glm::vec3(1.0f,0.0f,0.0f));
+		glm::mat4 tr1 = glm::translate(glm::mat4(1.0f),glm::vec3(px,py,pz));		
+
+		rotation = glm::rotate(tr1, glm::radians(rx), glm::vec3(1.0f,0.0f,0.0f));
 		rotation = glm::rotate(rotation, glm::radians(ry), glm::vec3(0.0f,1.0f,0.0f));
 		rotation = glm::rotate(rotation, glm::radians(rz), glm::vec3(0.0f,0.0f,1.0f));
 
-		translation = glm::translate(glm::mat4(1.0f),glm::vec3(tx,ty,tz));
+		translation = glm::translate(glm::mat4(1.0f),glm::vec3(tx-px,ty-px,tz-px));
 	}
 
 	void HNode::add_child(HNode* a_child){
@@ -80,6 +82,14 @@ namespace csX75
 		rx = arx;
 		ry = ary;
 		rz = arz;
+
+		update_matrices();
+	}
+
+	void HNode::change_rotation_parameters(GLfloat arx, GLfloat ary, GLfloat arz){
+		px += arx;
+		py += ary;
+		pz += arz;
 
 		update_matrices();
 	}
@@ -98,18 +108,18 @@ namespace csX75
 
 	}
 
-	void HNode::render_tree(){
+	void HNode::render_tree(GLfloat depth){
 		
 		matrixStack.push_back(translation);
 		matrixStack.push_back(rotation);
-
+		matrixStack.push_back(glm::translate(glm::mat4(1.0f),glm::vec3(0.0f,0.0f,depth)));
 		render();
+		matrixStack.pop_back();
 		for(int i=0;i<children.size();i++){
-			children[i]->render_tree();
+			children[i]->render_tree(depth);
 		}
 		matrixStack.pop_back();
 		matrixStack.pop_back();
-
 	}
 
 	void HNode::inc_rx(){

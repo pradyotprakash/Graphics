@@ -21,7 +21,7 @@ namespace csX75	 {
 	class HNode {
 		//glm::vec4 * vertices;
 		//glm::vec4 * colors;
-		GLfloat tx,ty,tz,rx,ry,rz;
+		GLfloat tx,ty,tz,rx,ry,rz,px,py,pz;
 		int ID;
 		std::size_t vertex_buffer_size;
 		std::size_t color_buffer_size;
@@ -45,7 +45,8 @@ namespace csX75	 {
 		void add_child(HNode*);
 		void render();
 		void change_parameters(GLfloat,GLfloat,GLfloat,GLfloat,GLfloat,GLfloat);
-		void render_tree();
+		void change_rotation_parameters(GLfloat,GLfloat,GLfloat);
+		void render_tree(GLfloat);
 		void inc_rx();
 		void inc_ry();
 		void inc_rz();

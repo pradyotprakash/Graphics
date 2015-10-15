@@ -17,3 +17,7 @@
 #define HEAD 17
 #define LIGHT_SABER_LEFT 18
 #define LIGHT_SABER_RIGHT 19
+#define ELBOW_LEFT 20
+#define ELBOW_RIGHT 21
+#define KNEE_LEFT 22
+#define KNEE_RIGHT 23

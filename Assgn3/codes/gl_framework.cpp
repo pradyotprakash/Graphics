@@ -4,7 +4,6 @@
 #include "camera.hpp"
 
 // extern GLfloat c_xrot, c_yrot, c_zrot;
-// extern bool enable_perspective;
 extern Humanoid* humanoid;
 extern csX75::HNode* curr_node;
 extern Camera *camera;
@@ -54,10 +53,10 @@ namespace csX75
 			curr_node = humanoid->get_current(UPPER_ARM_LEFT);
 		}
 		else if (key == GLFW_KEY_H && action == GLFW_PRESS){
-			curr_node = humanoid->get_current(LOWER_ARM_RIGHT);
+			curr_node = humanoid->get_current(ELBOW_RIGHT);
 		}
 		else if (key == GLFW_KEY_Y && action == GLFW_PRESS){
-			curr_node = humanoid->get_current(LOWER_ARM_LEFT);
+			curr_node = humanoid->get_current(ELBOW_LEFT);
 		}
 		else if (key == GLFW_KEY_J && action == GLFW_PRESS){
 			curr_node = humanoid->get_current(WRIST_RIGHT);
@@ -101,17 +100,17 @@ namespace csX75
 		else if (key == GLFW_KEY_P && action == GLFW_PRESS)
 			enable_perspective = !enable_perspective;   
 		else if (key == GLFW_KEY_A )
-			camera->update_y(0, 1.0);
+			camera->update_y(0, 2.0);
 		else if (key == GLFW_KEY_D )
-			camera->update_y(0, -1.0);
+			camera->update_y(0, -2.0);
 		else if (key == GLFW_KEY_W )
-			camera->update_x(0, 1.0);
+			camera->update_x(0, 2.0);
 		else if (key == GLFW_KEY_S )
-			camera->update_x(0, -1.0);
+			camera->update_x(0, -2.0);
 		else if (key == GLFW_KEY_Q )
-			camera->update_z(0, -1.0);
+			camera->update_z(2.0, 0);
 		else if (key == GLFW_KEY_E )
-			camera->update_z(0, 1.0);
+			camera->update_z(-2, 0);
 	}
 };  
 

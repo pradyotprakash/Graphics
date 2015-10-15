@@ -20,6 +20,8 @@
 		foot2 = NULL;
 		saber1 =NULL;
 		saber2 = NULL;	
+		elbow1 = NULL;
+		elbow2 = NULL;
 	}
 
 	csX75::HNode* Humanoid::create_elem(std::vector <glm::vec4> v_positions, std::vector <glm::vec4> v_colors, int elem){
@@ -85,13 +87,23 @@
 			up_arm2 = new csX75::HNode(elem, parent, v_positions.size(), &v_positions[0], &v_colors[0], sizeOfvec4*v_positions.size(), sizeOfvec4*v_colors.size());
 			curr = up_arm2;
 		}
-		else if(elem == LOWER_ARM_LEFT){
+		else if(elem == ELBOW_LEFT){
 			parent = up_arm1;
+			elbow1 = new csX75::HNode(elem, parent, v_positions.size(), &v_positions[0], &v_colors[0], sizeOfvec4*v_positions.size(), sizeOfvec4*v_colors.size());
+			curr = elbow1;
+		}
+		else if(elem == ELBOW_RIGHT){
+			parent = up_arm2;
+			elbow2 = new csX75::HNode(elem, parent, v_positions.size(), &v_positions[0], &v_colors[0], sizeOfvec4*v_positions.size(), sizeOfvec4*v_colors.size());
+			curr = elbow2;
+		}
+		else if(elem == LOWER_ARM_LEFT){
+			parent = elbow1;
 			l_arm1 = new csX75::HNode(elem, parent, v_positions.size(), &v_positions[0], &v_colors[0], sizeOfvec4*v_positions.size(), sizeOfvec4*v_colors.size());
 			curr = l_arm1;
 		}
 		else if(elem == LOWER_ARM_RIGHT){
-			parent = up_arm2;
+			parent = elbow2;
 			l_arm2 = new csX75::HNode(elem, parent, v_positions.size(), &v_positions[0], &v_colors[0], sizeOfvec4*v_positions.size(), sizeOfvec4*v_colors.size());
 			curr = l_arm2;
 		}
@@ -181,6 +193,12 @@
 		}
 		else if(elem == LIGHT_SABER_RIGHT){
 			return saber2;
+		}
+		else if(elem == ELBOW_RIGHT){
+			return elbow2;
+		}
+		else if(elem == ELBOW_LEFT){
+			return elbow1;
 		}
 	}
 

@@ -1,15 +1,11 @@
-#version 130
+#version 330
 
 in vec4 vPosition;
-in vec4 vColor;
-in vec2 texCoord;
-out vec4 color;
-out vec2 tex;
+out vec4 tex;
 uniform mat4 uModelViewMatrix;
 
 void main (void) 
 {
   gl_Position = uModelViewMatrix * vPosition;
-  color = vColor;
-  tex = texCoord;
+  tex = -vPosition;
 }
