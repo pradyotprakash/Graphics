@@ -15,6 +15,7 @@ public:
 	glm::mat4 view_matrix;
 
 	glm::mat4 modelview_matrix;
+	glm::mat3 normal_matrix;
 
 	std::vector<GLuint> vao_array, vbo_array;
 	std::vector<int> num_vertices;
@@ -35,7 +36,7 @@ public:
 		depth = 15.0f;
 	}
 
-	void make_pyramid(GLfloat height, GLfloat width, std::vector<glm::vec4> &v_positions, std::vector<glm::vec4> &v_colors, glm::vec4 object_color ){
+	void make_pyramid(GLfloat height, GLfloat width, std::vector<glm::vec4> &v_positions, std::vector<glm::vec4> &v_colors, std::vector<glm::vec4> &v_normals, glm::vec4 object_color ){
 		float x = depth;//15.0f;
 		std::vector<glm::vec4> positions;
 		
@@ -49,28 +50,46 @@ public:
 		v_positions.clear();
 		
 		v_positions.push_back(positions[0]);
+		v_normals.push_back(positions[0]);		
 		v_positions.push_back(positions[2]);
+		v_normals.push_back(positions[2]);
 		v_positions.push_back(positions[1]);
+		v_normals.push_back(positions[1]);
 
 		v_positions.push_back(positions[0]);
+		v_normals.push_back(positions[0]);
 		v_positions.push_back(positions[1]);
+		v_normals.push_back(positions[1]);
 		v_positions.push_back(positions[3]);
+		v_normals.push_back(positions[3]);
 
 		v_positions.push_back(positions[0]);
+		v_normals.push_back(positions[0]);
 		v_positions.push_back(positions[3]);
+		v_normals.push_back(positions[3]);
 		v_positions.push_back(positions[4]);
+		v_normals.push_back(positions[4]);
 
 		v_positions.push_back(positions[0]);
+		v_normals.push_back(positions[0]);
 		v_positions.push_back(positions[4]);
+		v_normals.push_back(positions[4]);
 		v_positions.push_back(positions[2]);
+		v_normals.push_back(positions[2]);
 
 		v_positions.push_back(positions[3]);
+		v_normals.push_back(positions[3]);
 		v_positions.push_back(positions[1]);
+		v_normals.push_back(positions[1]);
 		v_positions.push_back(positions[2]);
+		v_normals.push_back(positions[2]);
 
 		v_positions.push_back(positions[3]);
+		v_normals.push_back(positions[3]);
 		v_positions.push_back(positions[2]);
+		v_normals.push_back(positions[2]);
 		v_positions.push_back(positions[4]);
+		v_normals.push_back(positions[4]);
 
 		v_colors.clear();
 		for (int i = 0; i < v_positions.size(); ++i)
@@ -80,13 +99,16 @@ public:
 		}
 	}
 
-	void make_triangle(float height, float width, float angle, std::vector<glm::vec4> &v_positions, std::vector<glm::vec4> &v_colors, glm::vec4 object_color){
+	void make_triangle(float height, float width, float angle, std::vector<glm::vec4> &v_positions, std::vector<glm::vec4> &v_colors,std::vector<glm::vec4> &v_normals, glm::vec4 object_color){
 		angle = angle*PI/180;
 		float x = depth;//15.0f;
 		v_positions.clear();
 		v_positions.push_back(glm::vec4(width/2,0, 0.0-x, 1.0));
+		v_normals.push_back(glm::vec4(width/2,0, 0.0-x, 1.0));
 		v_positions.push_back(glm::vec4(height*cos(angle),height*sin(angle), 0.0-x, 1.0));
+		v_normals.push_back(glm::vec4(height*cos(angle),height*sin(angle), 0.0-x, 1.0));
 		v_positions.push_back(glm::vec4(-width/2,0, 0.0-x, 1.0));		
+		v_normals.push_back(glm::vec4(-width/2,0, 0.0-x, 1.0));		
 
 		v_colors.clear();
 		for (int i = 0; i < v_positions.size(); ++i)
@@ -96,7 +118,7 @@ public:
 		}
 	}
 
-	void draw_cylinder(float length, float radius, float radius1, int numSteps,std::vector<glm::vec4> &v_positions, std::vector<glm::vec4> &v_colors, glm::vec4 object_color) {
+	void draw_cylinder(float length, float radius, float radius1, int numSteps,std::vector<glm::vec4> &v_positions, std::vector<glm::vec4> &v_colors, std::vector<glm::vec4> &v_normals,glm::vec4 object_color) {
  		float hl = length;
  		float a = 0.0f;
  		float step = 2.0f * PI / (float)numSteps;
@@ -115,11 +137,17 @@ public:
 			float next_x2 = cosf(a + step)*radius1;
 			float next_y2 = sinf(a + step)*radius1;
 	 		v_positions.push_back(glm::vec4(x2, y2, hl-x, 1.0));
+	 		v_normals.push_back(glm::vec4(x2, y2, hl-x, 1.0));
 	 		v_positions.push_back(glm::vec4(x1, y1, 0.0-x, 1.0));
+	 		v_normals.push_back(glm::vec4(x1, y1, 0.0-x, 1.0));
 			v_positions.push_back(glm::vec4(next_x2,next_y2, hl-x, 1.0));
+			v_normals.push_back(glm::vec4(next_x2,next_y2, hl-x, 1.0));
 			v_positions.push_back(glm::vec4(next_x2, next_y2, hl-x, 1.0));
+			v_normals.push_back(glm::vec4(next_x2, next_y2, hl-x, 1.0));
 			v_positions.push_back(glm::vec4(next_x1, next_y1, 0-x, 1.0));
+			v_normals.push_back(glm::vec4(next_x1, next_y1, 0-x, 1.0));
 			v_positions.push_back(glm::vec4(x1, y1, 0-x, 1.0));
+			v_normals.push_back(glm::vec4(x1, y1, 0-x, 1.0));
 	 		a += step;
 		}
 		
@@ -133,118 +161,118 @@ public:
 
 	void create_humanoid(){
 
-		std::vector<glm::vec4> v_positions, v_colors;
+		std::vector<glm::vec4> v_positions, v_colors, v_normals;
 		csX75::HNode* curr;
 		
 		// hip
-		curr = humanoid->create_elem(v_positions, v_colors, 1);
+		curr = humanoid->create_elem(v_positions, v_colors, v_normals, 1);
 
 		// torso
-		make_pyramid(3, 1, v_positions, v_colors, glm::vec4(1,0,0,1));
-		curr = humanoid->create_elem(v_positions, v_colors, 15);
+		make_pyramid(3, 1, v_positions, v_colors, v_normals, glm::vec4(1,0,0,1));
+		curr = humanoid->create_elem(v_positions, v_colors, v_normals, 15);
 		curr->change_parameters(0.0,1.0,0.0,0.0,0.0,0.0);
 		
 		// upper left leg
-		make_pyramid(2.5, 0.8, v_positions, v_colors, glm::vec4(0,1,0,1));
-		curr = humanoid->create_elem(v_positions, v_colors, 8);
+		make_pyramid(2.5, 0.8, v_positions, v_colors,v_normals, glm::vec4(0,1,0,1));
+		curr = humanoid->create_elem(v_positions, v_colors,v_normals, 8);
 		curr->change_parameters(-0.43,-2.75,0.0,0.0,0.0,-30);
 
 		// left knee
-		make_pyramid(0, 0, v_positions, v_colors, glm::vec4(0,0,0,1));
-		curr = humanoid->create_elem(v_positions, v_colors, KNEE_LEFT);
+		make_pyramid(0, 0, v_positions, v_colors,v_normals, glm::vec4(0,0,0,1));
+		curr = humanoid->create_elem(v_positions, v_colors, v_normals,KNEE_LEFT);
 		curr->change_parameters(0,-2.5,0,0,0,0);
 
 		// lower left leg
-		make_pyramid(2, 0.7, v_positions, v_colors, glm::vec4(0,0,1,1));
-		curr = humanoid->create_elem(v_positions, v_colors, 10);
+		make_pyramid(2, 0.7, v_positions, v_colors,v_normals, glm::vec4(0,0,1,1));
+		curr = humanoid->create_elem(v_positions, v_colors,v_normals, 10);
 		curr->change_parameters(0.95,-1.6,0.0,0.0,0.0,30+180);
 
 		// left leg foot
-		make_triangle(1, 1, 90, v_positions, v_colors, glm::vec4(0.5,0.3,0.2,1));
-		curr = humanoid->create_elem(v_positions, v_colors, 12);
+		make_triangle(1, 1, 90, v_positions, v_colors,v_normals, glm::vec4(0.5,0.3,0.2,1));
+		curr = humanoid->create_elem(v_positions, v_colors,v_normals, 12);
 		curr->change_parameters(0,0,0.5,90,0,0);
 
 		// upper right leg
-		make_pyramid(2.5, 0.8, v_positions, v_colors, glm::vec4(0,1,0,1));
-		curr = humanoid->create_elem(v_positions, v_colors, 9);
+		make_pyramid(2.5, 0.8, v_positions, v_colors, v_normals,glm::vec4(0,1,0,1));
+		curr = humanoid->create_elem(v_positions, v_colors,v_normals, 9);
 		curr->change_parameters(0.43,-2.75,0.0,0.0,0.0,30);
 
 		// right knee
-		make_pyramid(0, 0, v_positions, v_colors, glm::vec4(0,0,0,1));
-		curr = humanoid->create_elem(v_positions, v_colors, KNEE_RIGHT);
+		make_pyramid(0, 0, v_positions, v_colors,v_normals, glm::vec4(0,0,0,1));
+		curr = humanoid->create_elem(v_positions, v_colors, v_normals,KNEE_RIGHT);
 		curr->change_parameters(0,-2.5,0,0,0,0);
 
 		// lower right leg
-		make_pyramid(2, 0.7, v_positions, v_colors, glm::vec4(0,0,1,1));
-		curr = humanoid->create_elem(v_positions, v_colors, 11);
+		make_pyramid(2, 0.7, v_positions, v_colors, v_normals,glm::vec4(0,0,1,1));
+		curr = humanoid->create_elem(v_positions, v_colors,v_normals, 11);
 		curr->change_parameters(-0.95,-1.6,0.0,0.0,0.0,-30+180);
 
 		// right leg foot
-		make_triangle(1, 1,90, v_positions, v_colors, glm::vec4(0.5,0.3,0.2,1));
-		curr = humanoid->create_elem(v_positions, v_colors, 13);
+		make_triangle(1, 1,90, v_positions, v_colors,v_normals, glm::vec4(0.5,0.3,0.2,1));
+		curr = humanoid->create_elem(v_positions, v_colors, v_normals,13);
 		curr->change_parameters(0,0,0.5,270,0,180);		
 
 		// shoulder
-		make_pyramid(0, 0, v_positions, v_colors, glm::vec4(1,1,0.2,1));
-		curr = humanoid->create_elem(v_positions, v_colors, 14);
+		make_pyramid(0, 0, v_positions, v_colors,v_normals, glm::vec4(1,1,0.2,1));
+		curr = humanoid->create_elem(v_positions, v_colors,v_normals, 14);
 
 		// neck
-		make_pyramid(0, 0, v_positions, v_colors, glm::vec4(1,1,0.2,1));
-		curr = humanoid->create_elem(v_positions, v_colors, 16);
+		make_pyramid(0, 0, v_positions, v_colors, v_normals,glm::vec4(1,1,0.2,1));
+		curr = humanoid->create_elem(v_positions, v_colors,v_normals, 16);
 
 		// head
-		make_pyramid(1, 1, v_positions, v_colors, glm::vec4(0.7,0.2,0.4,1));
-		curr = humanoid->create_elem(v_positions, v_colors, 17);
+		make_pyramid(1, 1, v_positions, v_colors,v_normals, glm::vec4(0.7,0.2,0.4,1));
+		curr = humanoid->create_elem(v_positions, v_colors, v_normals,17);
 		curr->change_parameters(0,1,0,0,0,0);
 
 		// left upper arm
-		make_pyramid(1.8, 0.7, v_positions, v_colors, glm::vec4(1,0.2,0.4,1));
-		curr = humanoid->create_elem(v_positions, v_colors, 2);
+		make_pyramid(1.8, 0.7, v_positions, v_colors,v_normals, glm::vec4(1,0.2,0.4,1));
+		curr = humanoid->create_elem(v_positions, v_colors,v_normals, 2);
 		curr->change_parameters(-0.5,0,0,0,0,-50);
 
 		// left elbow
-		make_pyramid(0, 0, v_positions, v_colors, glm::vec4(0,0,0,1));
-		curr = humanoid->create_elem(v_positions, v_colors, ELBOW_LEFT);
+		make_pyramid(0, 0, v_positions, v_colors,v_normals, glm::vec4(0,0,0,1));
+		curr = humanoid->create_elem(v_positions, v_colors,v_normals, ELBOW_LEFT);
 		curr->change_parameters(0,-1.8,0,0,0,0);
 
 		// left lower arm
-		make_pyramid(1.8, 0.5, v_positions, v_colors, glm::vec4(0.3,0.8,0.7,1));
-		curr = humanoid->create_elem(v_positions, v_colors, 4);
+		make_pyramid(1.8, 0.5, v_positions, v_colors, v_normals,glm::vec4(0.3,0.8,0.7,1));
+		curr = humanoid->create_elem(v_positions, v_colors,v_normals, 4);
 		curr->change_parameters(-1.55,-0.9,0,0,0,120);
 
 		// left  wrist
-		make_triangle(0.7, 0.5, 45,v_positions, v_colors, glm::vec4(0.5,0.3,0.2,1));
-		curr = humanoid->create_elem(v_positions, v_colors, 6);
+		make_triangle(0.7, 0.5, 45,v_positions, v_colors,v_normals, glm::vec4(0.5,0.3,0.2,1));
+		curr = humanoid->create_elem(v_positions, v_colors,v_normals, 6);
 		curr->change_parameters(0,0,0,0,0,0);		
 
 		// right upper arm
-		make_pyramid(1.8, 0.7, v_positions, v_colors, glm::vec4(1,0.2,0.4,1));
-		curr = humanoid->create_elem(v_positions, v_colors, 3);
+		make_pyramid(1.8, 0.7, v_positions, v_colors, v_normals,glm::vec4(1,0.2,0.4,1));
+		curr = humanoid->create_elem(v_positions, v_colors,v_normals, 3);
 		curr->change_parameters(0.5,0,0,0,0,50);
 
 		// right elbow
-		make_pyramid(0, 0, v_positions, v_colors, glm::vec4(0,0,0,1));
-		curr = humanoid->create_elem(v_positions, v_colors, ELBOW_RIGHT);
+		make_pyramid(0, 0, v_positions, v_colors,v_normals, glm::vec4(0,0,0,1));
+		curr = humanoid->create_elem(v_positions, v_colors,v_normals, ELBOW_RIGHT);
 		curr->change_parameters(0,-1.8,0,0,0,0);
 
 		// right lower arm
-		make_pyramid(1.8, 0.5, v_positions, v_colors, glm::vec4(0.3,0.8,0.7,1));
-		curr = humanoid->create_elem(v_positions, v_colors, 5);
+		make_pyramid(1.8, 0.5, v_positions, v_colors,v_normals, glm::vec4(0.3,0.8,0.7,1));
+		curr = humanoid->create_elem(v_positions, v_colors,v_normals, 5);
 		curr->change_parameters(1.55,-0.9,0,0,0,-120);
 
 		// right  wrist
-		make_triangle(0.7, 0.5, 135,v_positions, v_colors, glm::vec4(0.5,0.3,0.2,1));
-		curr = humanoid->create_elem(v_positions, v_colors, 7);
+		make_triangle(0.7, 0.5, 135,v_positions, v_colors,v_normals, glm::vec4(0.5,0.3,0.2,1));
+		curr = humanoid->create_elem(v_positions, v_colors,v_normals, 7);
 		curr->change_parameters(0,0,0,0,0,0);		
 
 		//left lightsaber
-		draw_cylinder(3.7,0.1,0.1,300,v_positions,v_colors,glm::vec4(0.7,0.3,0.2,1));
-		curr = humanoid->create_elem(v_positions, v_colors, 18);
+		draw_cylinder(3.7,0.1,0.1,300,v_positions,v_colors,v_normals,glm::vec4(0.7,0.3,0.2,1));
+		curr = humanoid->create_elem(v_positions, v_colors,v_normals, 18);
 		curr->change_parameters(0,0.1,0,0,90,0);
 
 		//RIGHT lightsaber
-		draw_cylinder(3.7,0.1,0.1,300,v_positions,v_colors,glm::vec4(0.7,0.3,0.2,1));
-		curr = humanoid->create_elem(v_positions, v_colors, 19);
+		draw_cylinder(3.7,0.1,0.1,300,v_positions,v_colors,v_normals,glm::vec4(0.7,0.3,0.2,1));
+		curr = humanoid->create_elem(v_positions, v_colors,v_normals, 19);
 		curr->change_parameters(0,0.1,0,0,-90,0);
 
 		curr_node = humanoid->get_root();
@@ -364,8 +392,11 @@ public:
 			// getting the attributes from the shader program
 			vPosition2 = glGetAttribLocation( shaderProgram2, "vPosition" );
 			vColor2 = glGetAttribLocation( shaderProgram2, "vColor" );
+			vNormal2 = glGetAttribLocation( shaderProgram2, "vNormal" );
 			uModelViewMatrix2 = glGetUniformLocation( shaderProgram2, "uModelViewMatrix");
-
+			normalMatrix =  glGetUniformLocation( shaderProgram2, "normalMatrix");
+			viewMatrix = glGetUniformLocation( shaderProgram2, "viewMatrix");
+			
 			create_humanoid();
 		}
 	}
@@ -393,7 +424,7 @@ public:
 		}
 
 		view_matrix = projection_matrix*lookat_matrix;
-
+		glUniformMatrix4fv(viewMatrix, 1, GL_FALSE, glm::value_ptr(view_matrix));
 		glUniformMatrix4fv(uModelViewMatrix2, 1, GL_FALSE, glm::value_ptr(view_matrix));
 		glUseProgram(shaderProgram2);
 		matrixStack.push_back(view_matrix);

@@ -2,17 +2,18 @@
 #include "constants.hpp"
 #include <iostream>
 
-extern GLuint vPosition2, vColor2, uModelViewMatrix2;
+extern GLuint vPosition2, vColor2, vNormal2, uModelViewMatrix2, normalMatrix , viewMatrix;
 extern std::vector<glm::mat4> matrixStack;
 
 namespace csX75
 {
 
-	HNode::HNode(int id, HNode* a_parent, GLuint num_v, glm::vec4* a_vertices, glm::vec4* a_colours, std::size_t v_size, std::size_t c_size){
+	HNode::HNode(int id, HNode* a_parent, GLuint num_v, glm::vec4* a_vertices, glm::vec4* a_colours, glm::vec4* a_normals, std::size_t v_size, std::size_t c_size, std::size_t n_size){
 		ID = id;
 		num_vertices = num_v;
 		vertex_buffer_size = v_size;
 		color_buffer_size = c_size;
+		normal_buffer_size = n_size;
 		// initialize vao and vbo of the object;
 
 
@@ -26,9 +27,11 @@ namespace csX75
 		glBindBuffer (GL_ARRAY_BUFFER, vbo);
 
 		
-		glBufferData (GL_ARRAY_BUFFER, vertex_buffer_size + color_buffer_size, NULL, GL_STATIC_DRAW);
+		glBufferData (GL_ARRAY_BUFFER, normal_buffer_size+ vertex_buffer_size + color_buffer_size, NULL, GL_STATIC_DRAW);
 		glBufferSubData( GL_ARRAY_BUFFER, 0, vertex_buffer_size, a_vertices );
 		glBufferSubData( GL_ARRAY_BUFFER, vertex_buffer_size, color_buffer_size, a_colours );
+		glBufferSubData( GL_ARRAY_BUFFER, vertex_buffer_size+ color_buffer_size, normal_buffer_size, a_normals );
+		
 
 		//setup the vertex array as per the shader
 		glEnableVertexAttribArray( vPosition2 );
@@ -36,6 +39,9 @@ namespace csX75
 
 		glEnableVertexAttribArray( vColor2 );
 		glVertexAttribPointer( vColor2, 4, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(vertex_buffer_size));
+
+		glEnableVertexAttribArray( vNormal2 );
+ 		 glVertexAttribPointer( vNormal2, 4, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(vertex_buffer_size+color_buffer_size));
 
 
 		// set parent
@@ -98,8 +104,9 @@ namespace csX75
 
 		//matrixStack multiply
 		glm::mat4* ms_mult = multiply_stack(matrixStack);
-
 		glUniformMatrix4fv(uModelViewMatrix2, 1, GL_FALSE, glm::value_ptr(*ms_mult));
+		glm::mat3 normal_matrix = glm::transpose (glm::inverse(glm::mat3(*ms_mult)));
+  		glUniformMatrix3fv(normalMatrix, 1, GL_FALSE, glm::value_ptr(normal_matrix));
 		glBindVertexArray (vao);
 		glDrawArrays(GL_TRIANGLES, 0, num_vertices);
 
