@@ -400,12 +400,12 @@ public:
 		matrixStack.push_back(glm::translate(glm::mat4(1.0f),glm::vec3(0.0f,0.0f,-depth)));
 		humanoid->get_root()->render_tree(depth);
 
-		// glm::mat4 skybox_view_matrix = glm::mat4(glm::mat3(lookat_matrix));
-		// glUniformMatrix4fv(uModelViewMatrix1, 1, GL_FALSE, glm::value_ptr(projection_matrix*skybox_view_matrix));
-		// glUseProgram(shaderProgram1);
-		// for(int i=0;i<vao_array.size();++i){
-		// 	draw_buffer(i);
-		// }		
+		glm::mat4 skybox_view_matrix = glm::mat4(glm::mat3(lookat_matrix));
+		glUniformMatrix4fv(uModelViewMatrix1, 1, GL_FALSE, glm::value_ptr(projection_matrix*skybox_view_matrix));
+		glUseProgram(shaderProgram1);
+		for(int i=0;i<vao_array.size();++i){
+			draw_buffer(i);
+		}		
 	}
 };
 
