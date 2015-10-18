@@ -17,6 +17,7 @@
 #include "glm/gtc/type_ptr.hpp"
 #include "hierarchy_node.hpp"
 #include "humanoid.hpp"
+#include "droid.hpp"
 #include "camera.hpp"
 
 /*// Translation Parameters
@@ -41,6 +42,7 @@ GLuint uModelViewMatrix1, uModelViewMatrix2, normalMatrix, viewMatrix;
 std::vector<glm::mat4> matrixStack;
 
 Humanoid *humanoid;
+Droid *droid;
 csX75::HNode *curr_node;
 Camera *camera;
 
