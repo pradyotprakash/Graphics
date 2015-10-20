@@ -26,9 +26,10 @@ namespace csX75	 {
 		std::size_t vertex_buffer_size;
 		std::size_t color_buffer_size;
 		std::size_t normal_buffer_size;
+		std::size_t texture_buffer_size;
 
 		GLuint num_vertices;
-		GLuint vao,vbo;
+		GLuint vao,vbo, tex;
 
 		glm::mat4 rotation;
 		glm::mat4 translation;
@@ -39,7 +40,7 @@ namespace csX75	 {
 		void update_matrices();
 
 	  public:
-		HNode (int, HNode*, GLuint, glm::vec4*,  glm::vec4*, glm::vec4*, std::size_t, std::size_t, std::size_t);
+		HNode(int id, HNode* a_parent, GLuint num_v, glm::vec4* a_vertices, glm::vec4* a_colours, glm::vec4* a_normals, glm::vec2* a_textures, std::size_t v_size, std::size_t c_size, std::size_t n_size, std::size_t t_size, GLuint tex);
 		//HNode (HNode* , glm::vec4*,  glm::vec4*,GLfloat,GLfloat,GLfloat,GLfloat,GLfloat,GLfloat);
 
 		void sanity_check();

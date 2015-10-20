@@ -22,5 +22,15 @@
 #define KNEE_LEFT 22
 #define KNEE_RIGHT 23
 #define HIP_JOINT 24
-#define WHEEL1 25
-#define WHEEL2 26
+#define TORSO_JOINT 35
+
+#define D_WHEEL_LEFT 25
+#define D_WHEEL_RIGHT 26
+#define D_UPPER_LEG_LEFT 27
+#define D_UPPER_LEG_RIGHT 28
+#define D_TORSO 29
+#define D_KNEE_LEFT 30
+#define D_KNEE_RIGHT 31
+#define D_LOWER_LEG_LEFT 32
+#define D_LOWER_LEG_RIGHT 33
+#define D_HEAD 34

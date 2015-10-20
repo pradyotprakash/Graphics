@@ -16,7 +16,6 @@ all: main
 humanoid: humanoid.hpp humanoid.cpp
 	g++ -c humanoid.cpp
 
-
 droid: droid.hpp droid.cpp
 	g++ -c droid.cpp
 
