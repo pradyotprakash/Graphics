@@ -13,23 +13,27 @@ varying vec2 tex;
 void main () 
 {
 	color = texture2D(texture, tex);
-
+	//color = vec4(0.3,0.2,0.5,1.0);
 	// Defining Materials
-  vec4 diffuse = vec4(0, 0.0, 0.0, 1.0); 
+  vec4 diffuse = vec4(1, 0.0, 0.0, 1.0); 
   vec4 ambient = vec4(0.3, 0.3, 0.3, 1.0);
   vec4 specular = vec4(0, 0, 0, 1.0);
   float shininess = 0.05;
   vec4 spec = vec4(0.0); 
 
   // Defining Light 
-  vec4 lightPos = vec4(1.0, 1.0, 1.0, 0.0);
+  vec4 lightPos = vec4(10.0, 10.0, 10.0, 0.0);
   vec3 lightDir = vec3(viewMatrix * lightPos);  // Transforms with camera
   lightDir = normalize( vec3(lightDir));  
 
   //Diffuse
   vec3 n = normalize(vec3(normal));	     
   float dotProduct = dot(n, lightDir);
-  float intensity =  max( dotProduct, 0.0);
+  float intensity =  dotProduct;
+  if(intensity < 0.0){
+  	intensity = -intensity;
+  }
+
 
   // Compute specular component only if light falls on vertex
   if(intensity > 0.0)
@@ -41,9 +45,9 @@ void main ()
   }  
 
   //vec4 color = 
- //vec4 color = intensity * diffuse; // Only Diffuse  
-	
-frag_color = intensity*color+ ambient; // All
+ //frag_color = (intensity * diffuse)*color; // Only Diffuse  
+	frag_color=color;
+//frag_color = intensity*color+ ambient; // All
 }
 
 

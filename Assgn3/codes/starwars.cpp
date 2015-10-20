@@ -169,29 +169,31 @@ public:
 			float next_y1 = sinf(a + step)*radius;
 			float next_x2 = cosf(a + step)*radius1;
 			float next_y2 = sinf(a + step)*radius1;
-	 		v_positions.push_back(glm::vec4(x2, y2, hl-x, 1.0));
-	 		v_normals.push_back(glm::vec4(x2, y2, hl-x, 1.0));
+	 		
+			v_positions.push_back(glm::vec4(x2, y2, hl-x, 1.0));
+	 		v_normals.push_back(glm::vec4(x2, y2, 0, 1.0));
 	 		v_textures.push_back(glm::vec2(a/(4*PI), 0));
-
-	 		v_positions.push_back(glm::vec4(x1, y1, 0.0-x, 1.0));
-	 		v_normals.push_back(glm::vec4(x1, y1, 0.0-x, 1.0));
-	 		v_textures.push_back(glm::vec2(a/(4*PI), 1));
 			
 			v_positions.push_back(glm::vec4(next_x2,next_y2, hl-x, 1.0));
-			v_normals.push_back(glm::vec4(next_x2,next_y2, hl-x, 1.0));
+			v_normals.push_back(glm::vec4(next_x2,next_y2,0, 1.0));
 			v_textures.push_back(glm::vec2((a+step)/(4*PI), 0));
 
+			v_positions.push_back(glm::vec4(x1, y1, 0.0-x, 1.0));
+	 		v_normals.push_back(glm::vec4(x1, y1, 0, 1.0));
+	 		v_textures.push_back(glm::vec2(a/(4*PI), 1));
+
 			v_positions.push_back(glm::vec4(next_x2, next_y2, hl-x, 1.0));
-			v_normals.push_back(glm::vec4(next_x2, next_y2, hl-x, 1.0));
+			v_normals.push_back(glm::vec4(next_x2, next_y2, 0, 1.0));
 			v_textures.push_back(glm::vec2((a+step)/(4*PI), 0));
 
 			v_positions.push_back(glm::vec4(next_x1, next_y1, 0-x, 1.0));
-			v_normals.push_back(glm::vec4(next_x1, next_y1, 0-x, 1.0));
+			v_normals.push_back(glm::vec4(next_x1, next_y1, 0, 1.0));
 			v_textures.push_back(glm::vec2((a+step)/(4*PI), 1));
 
 			v_positions.push_back(glm::vec4(x1, y1, 0-x, 1.0));
-			v_normals.push_back(glm::vec4(x1, y1, 0-x, 1.0));
+			v_normals.push_back(glm::vec4(x1, y1, 0, 1.0));
 	 		v_textures.push_back(glm::vec2(a/(4*PI), 1));
+
 	 		a += step;
 		}
 		
@@ -440,9 +442,9 @@ public:
 		std::vector<glm::vec2> v_textures;
 		csX75::HNode* curr;
 
-		GLuint tex = LoadTexture2("images/droid.bmp", 894, 894);
+		GLuint tex=  LoadTexture2("images/droid.bmp", 894, 894);
 		// torso
-		draw_cylinder(3, 1, 1, 50,v_positions, v_colors, v_normals, v_textures, glm::vec4(1,0,0,1));
+		draw_cylinder(3, 1, 1, 500,v_positions, v_colors, v_normals, v_textures, glm::vec4(1,0,0,1));
 		DrawCircle1(1,0.0,0.0,3.0,1,0,1,0,0,1000, v_positions,v_colors,v_normals,v_textures);
 		curr = droid->create_elem(v_positions, v_colors, v_normals, v_textures, tex, D_TORSO);
 		curr->change_parameters(7.0,1.0,0.0,90,0.0,0.0);
@@ -522,6 +524,17 @@ public:
 		glVertexAttribPointer( vPosition1, 4, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(0) );
 	}
 
+	void create_spotlight(){
+
+		std::vector<glm::vec4> v_positions, v_normals, v_colors;
+		std::vector<glm::vec2> v_textures;
+
+		draw_cylinder(2.0, 1.0, 0, 50, v_positions, v_colors, v_normals, v_textures, glm::vec4(1,1,1,1));
+		int s = sizeof(glm::vec4), t = sizeof(glm::vec2);
+		spot = new csX75::HNode(-1, NULL, v_positions.size(), &v_positions[0], &v_colors[0], &v_normals[0], &v_textures[0], v_positions.size()*s, v_colors.size()*s, v_normals.size()*s, v_textures.size()*t, 0);
+		spot->change_parameters(0,10,0,-90,0,0);
+	}
+
 	void initBuffersGL(void)
 	{
 		{
@@ -538,8 +551,8 @@ public:
 			// getting the attributes from the shader program
 			vPosition1 = glGetAttribLocation( shaderProgram1, "vPosition" );
 			uModelViewMatrix1 = glGetUniformLocation( shaderProgram1, "uModelViewMatrix");
-			light1 = glGetAttribLocation( shaderProgram1, "light1_on_o" );
-			light2 = glGetAttribLocation( shaderProgram1, "light2_on_o" );
+			light1 = glGetUniformLocation( shaderProgram1, "light1_on" );
+			light2 = glGetUniformLocation( shaderProgram1, "light2_on" );
 
 			GLfloat skyboxVertices[] = {
 			  -100.0f,  100.0f, -100.0f, 1.0f,
@@ -626,6 +639,7 @@ public:
 			
 			create_humanoid();
 			create_droid();
+			create_spotlight();
 		}
 	}
 
@@ -662,6 +676,7 @@ public:
 		matrixStack.push_back(glm::translate(glm::mat4(1.0f),glm::vec3(0.0f,0.0f,-depth)));
 		droid->get_root()->render_tree(depth);
 		humanoid->get_root()->render_tree(depth);
+		spot->render_tree(depth);
 
 		glm::mat4 skybox_view_matrix = glm::mat4(glm::mat3(lookat_matrix));
 		glUniformMatrix4fv(uModelViewMatrix1, 1, GL_FALSE, glm::value_ptr(projection_matrix*skybox_view_matrix));

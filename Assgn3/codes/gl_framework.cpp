@@ -10,7 +10,7 @@ extern Droid* droid;
 extern csX75::HNode* curr_node;
 extern Camera *camera;
 extern bool enable_perspective;
-extern GLuint light1_on, light2_on;
+extern GLint light1_on, light2_on;
 namespace csX75
 {
 	//! Initialize GL State
@@ -75,6 +75,9 @@ namespace csX75
 		else if (key == GLFW_KEY_F && action == GLFW_PRESS){
 			curr_node = humanoid->get_current(HIP_JOINT);
 		}
+		else if (key == GLFW_KEY_B && action == GLFW_PRESS){
+			curr_node = humanoid->get_current(HIP);
+		}
 		else if (key == GLFW_KEY_L && action == GLFW_PRESS){
 			curr_node = humanoid->get_current(KNEE_RIGHT);
 		}
@@ -105,20 +108,31 @@ namespace csX75
 		else if (key == GLFW_KEY_5 && action == GLFW_PRESS){
 			curr_node = droid->get_current(D_TORSO);
 		}
+		else if (key == GLFW_KEY_6 && action == GLFW_PRESS){
+			curr_node = droid->get_current(D_HEAD);
+		}
 		else if (key == GLFW_KEY_COMMA && action == GLFW_PRESS){
-			// if(light1_on == 1)
-			// 	light1_on = 0;
-			// else light1_on = 1;
-			// //light1_on = 0;
-			light1_on = !light1_on;
+			if(light1_on == 1)
+				light1_on = 0;
+			else light1_on = 1;
 		}
 		else if (key == GLFW_KEY_SLASH && action == GLFW_PRESS){
-			// if(light2_on == 1)
-			// 	light2_on = 0;
-			// else light2_on = 1;
-			light2_on = !light2_on;
-			std::cout<<light2_on<<"\n";
+			if(light2_on == 1)
+				light2_on = 0;
+			else light2_on = 1;
 		}
+		else if ((curr_node->ID == HIP || curr_node->ID == D_TORSO) && key == GLFW_KEY_LEFT && mods == GLFW_MOD_SHIFT)
+			curr_node->dec_ty();
+		else if ((curr_node->ID == HIP || curr_node->ID == D_TORSO) && key == GLFW_KEY_RIGHT && mods == GLFW_MOD_SHIFT)
+			curr_node->inc_ty();
+		else if ((curr_node->ID == HIP || curr_node->ID == D_TORSO) && key == GLFW_KEY_UP && mods == GLFW_MOD_SHIFT)
+			curr_node->dec_tx();
+		else if ((curr_node->ID == HIP || curr_node->ID == D_TORSO) && key == GLFW_KEY_DOWN && mods == GLFW_MOD_SHIFT)
+			curr_node->inc_tx();
+		else if ((curr_node->ID == HIP || curr_node->ID == D_TORSO) && key == GLFW_KEY_PAGE_UP && mods == GLFW_MOD_SHIFT)
+			curr_node->dec_tz();
+		else if ((curr_node->ID == HIP || curr_node->ID == D_TORSO) && key == GLFW_KEY_PAGE_DOWN && mods == GLFW_MOD_SHIFT)
+			curr_node->inc_tz();
 		else if (key == GLFW_KEY_LEFT)
 			curr_node->dec_ry();
 		else if (key == GLFW_KEY_RIGHT)
@@ -133,20 +147,29 @@ namespace csX75
 			curr_node->inc_rz();
 		else if (key == GLFW_KEY_P && action == GLFW_PRESS)
 			enable_perspective = !enable_perspective;   
-		else if (key == GLFW_KEY_A )
+		else if (key == GLFW_KEY_A && mods == GLFW_MOD_SHIFT)
 			camera->update_y(0, 2.0);
-		else if (key == GLFW_KEY_D )
+		else if (key == GLFW_KEY_A)
+			camera->update_y(2.0,0);
+		else if (key == GLFW_KEY_D && mods == GLFW_MOD_SHIFT)
 			camera->update_y(0, -2.0);
-		else if (key == GLFW_KEY_W )
+		else if (key == GLFW_KEY_D)
+			camera->update_y(-2.0,0);
+		else if (key == GLFW_KEY_W  && mods == GLFW_MOD_SHIFT)
 			camera->update_x(0, 2.0);
-		else if (key == GLFW_KEY_S )
+		else if (key == GLFW_KEY_W  )
+			camera->update_x(2.0,0);
+		else if (key == GLFW_KEY_S && mods == GLFW_MOD_SHIFT)
 			camera->update_x(0, -2.0);
-		else if (key == GLFW_KEY_Q )
+		else if (key == GLFW_KEY_S)
+			camera->update_x(-2.0,0);
+		else if (key == GLFW_KEY_Q && mods == GLFW_MOD_SHIFT )
+			camera->update_z(0, 2.0);
+		else if (key == GLFW_KEY_Q)
 			camera->update_z(2.0, 0);
-		else if (key == GLFW_KEY_E )
-			camera->update_z(-2, 0);
+		else if (key == GLFW_KEY_E  && mods == GLFW_MOD_SHIFT )
+			camera->update_z(0, -2.0);
+		else if (key == GLFW_KEY_E)
+			camera->update_z(-2.0, 0);
 	}
-};  
-
-
-
+}; 

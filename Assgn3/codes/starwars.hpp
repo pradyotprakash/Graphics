@@ -35,7 +35,7 @@ bool enable_culling = true;
 bool solid = true;
 //Enable/Disable perspective view
 bool enable_perspective = true;
-GLboolean light1_on = GL_TRUE, light2_on = GL_TRUE;
+GLint light1_on = 1, light2_on = 1;
 //Shader program attribs
 GLuint vPosition1, vPosition2, vColor1, vColor2, vNormal2, texCoord1, vTexture2;
 GLuint uModelViewMatrix1, uModelViewMatrix2, normalMatrix, viewMatrix;
@@ -47,6 +47,7 @@ Humanoid *humanoid;
 Droid *droid;
 csX75::HNode *curr_node;
 Camera *camera;
+csX75::HNode *spot;
 
 //-------------------------------------------------------------------------
 

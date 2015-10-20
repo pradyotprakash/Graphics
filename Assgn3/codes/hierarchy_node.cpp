@@ -65,8 +65,7 @@ namespace csX75
 	}
 
 	void HNode::sanity_check(){
-		// defines the constraints for each node movement
-		
+		// defines the constraints for each node movemet
 		if(ID == KNEE_LEFT || ID == KNEE_RIGHT){
 			ry = rz = 0;
 			rx = glm::max(0.0f, glm::min(rx, 120.0f));
@@ -125,9 +124,7 @@ namespace csX75
 			rx = glm::max(0.0f, glm::min(rx, 120.0f));
 		}
 		else if(ID == D_HEAD){
-			rx = glm::max(-20.0f, glm::min(rx, 50.0f));	
-			ry = glm::max(-50.0f, glm::min(ry, 50.0f));	
-			rz = glm::max(-30.0f, glm::min(rz, 30.0f));
+			rx = ry = 0;
 		}
 		else if(ID == TORSO_JOINT){
 			rx = glm::max(-60.0f, glm::min(rx, 120.0f));	
@@ -209,7 +206,6 @@ namespace csX75
 		update_matrices();
 	}
 
-
 	void HNode::inc_ry(){
 		ry += 2;
 		update_matrices();
@@ -235,8 +231,35 @@ namespace csX75
 		update_matrices();
 	}
 
+	void HNode::inc_tx(){
+		tx += 2;
+		update_matrices();
+	}
 
+	void HNode::inc_ty(){
+		ty += 2;
+		update_matrices();
+	}
 
+	void HNode::inc_tz(){
+		tz += 2;
+		update_matrices();
+	}
+
+	void HNode::dec_tx(){
+		tx -= 2;
+		update_matrices();
+	}
+
+	void HNode::dec_ty(){
+		ty -= 2;
+		update_matrices();
+	}
+
+	void HNode::dec_tz(){
+		tz -= 2;
+		update_matrices();
+	}
 
 	glm::mat4* multiply_stack(std::vector<glm::mat4> matStack){
 		glm::mat4* mult;

@@ -12,7 +12,7 @@ uniform mat4 uModelViewMatrix;
 uniform mat3 normalMatrix;
 uniform mat4 viewMatrix;
 
-void main (void) 
+void main (void)
 {
   gl_Position = uModelViewMatrix * vPosition;
   tex = texCoord;
