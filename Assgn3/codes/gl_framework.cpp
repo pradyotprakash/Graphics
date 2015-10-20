@@ -1,14 +1,16 @@
 #include "gl_framework.hpp"
 #include "hierarchy_node.hpp"
 #include "humanoid.hpp"
+#include "droid.hpp"
 #include "camera.hpp"
 
 // extern GLfloat c_xrot, c_yrot, c_zrot;
 extern Humanoid* humanoid;
+extern Droid* droid;
 extern csX75::HNode* curr_node;
 extern Camera *camera;
 extern bool enable_perspective;
-
+extern GLuint light1_on, light2_on;
 namespace csX75
 {
 	//! Initialize GL State
@@ -70,6 +72,9 @@ namespace csX75
 		else if (key == GLFW_KEY_I && action == GLFW_PRESS){
 			curr_node = humanoid->get_current(UPPER_LEG_LEFT);
 		}
+		else if (key == GLFW_KEY_F && action == GLFW_PRESS){
+			curr_node = humanoid->get_current(HIP_JOINT);
+		}
 		else if (key == GLFW_KEY_L && action == GLFW_PRESS){
 			curr_node = humanoid->get_current(KNEE_RIGHT);
 		}
@@ -84,6 +89,37 @@ namespace csX75
 		}
 		else if (key == GLFW_KEY_X && action == GLFW_PRESS){
 			curr_node = humanoid->get_current(NECK);
+		}
+		else if (key == GLFW_KEY_1 && action == GLFW_PRESS){
+			curr_node = droid->get_current(UPPER_LEG_LEFT);
+		}
+		else if (key == GLFW_KEY_2 && action == GLFW_PRESS){
+			curr_node = droid->get_current(UPPER_LEG_RIGHT);
+		}
+		else if (key == GLFW_KEY_3 && action == GLFW_PRESS){
+			curr_node = droid->get_current(KNEE_LEFT);
+		}
+		else if (key == GLFW_KEY_4 && action == GLFW_PRESS){
+			curr_node = droid->get_current(KNEE_RIGHT);
+		}
+		else if (key == GLFW_KEY_5 && action == GLFW_PRESS){
+			curr_node = droid->get_current(TORSO);
+		}
+		
+
+		else if (key == GLFW_KEY_COMMA && action == GLFW_PRESS){
+			// if(light1_on == 1)
+			// 	light1_on = 0;
+			// else light1_on = 1;
+			// //light1_on = 0;
+			light1_on = !light1_on;
+		}
+		else if (key == GLFW_KEY_SLASH && action == GLFW_PRESS){
+			// if(light2_on == 1)
+			// 	light2_on = 0;
+			// else light2_on = 1;
+			light2_on = !light2_on;
+			std::cout<<light2_on<<"\n";
 		}
 		else if (key == GLFW_KEY_LEFT)
 			curr_node->dec_ry();

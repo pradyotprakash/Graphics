@@ -21,3 +21,6 @@
 #define ELBOW_RIGHT 21
 #define KNEE_LEFT 22
 #define KNEE_RIGHT 23
+#define HIP_JOINT 24
+#define WHEEL1 25
+#define WHEEL2 26

@@ -44,8 +44,10 @@ GLuint LoadTexture( std::vector<const char*> filenames, int width, int height ){
         fread( data, size, 1, file ); // read the file
         fclose( file );
 
-
-        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + u, 0, GL_RGB, width, height, 0, GL_BGR, GL_UNSIGNED_BYTE, data);
+        if(u == 2)
+            glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + u, 0, GL_RGB, width, height, 0, GL_BGR, GL_UNSIGNED_BYTE, data);
+        else
+            glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + u, 0, GL_RGB, width, height, 0, GL_BGR, GL_UNSIGNED_BYTE, data);
 
     }
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);

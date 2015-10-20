@@ -13,9 +13,9 @@ Camera::Camera(GLfloat x_pos, GLfloat y_pos, GLfloat z_pos, GLfloat x_rot, GLflo
 }
 
 Camera::Camera(){
-	x_pos = 0.0;
+	x_pos = 10.0;
 	y_pos = 0.0;
-	z_pos = 2.0;
+	z_pos = 15.0;
 	x_rot = 0.0;
 	y_rot = 0.0;
 	z_rot = 0.0;	

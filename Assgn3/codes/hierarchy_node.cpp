@@ -16,7 +16,6 @@ namespace csX75
 		normal_buffer_size = n_size;
 		// initialize vao and vbo of the object;
 
-
 		//Ask GL for a Vertex Attribute Objects (vao)
 		glGenVertexArrays (1, &vao);
 		//Ask GL for aVertex Buffer Object (vbo)
@@ -62,12 +61,63 @@ namespace csX75
 
 	}
 
-	void sanity_check(){
+	void HNode::sanity_check(){
 		// defines the constraints for each node movement
+		
+		if(ID == KNEE_LEFT || ID == KNEE_RIGHT){
+			// allow rotation only about the x-axis
+			//
+			ry = rz = 0;
+			rx = glm::max(0.0f, glm::min(rx, 120.0f));
+		}
+		else if(ID == UPPER_LEG_LEFT){
+			rx = glm::max(-90.0f, glm::min(rx, 70.0f));	
+			ry = glm::max(-80.0f, glm::min(ry, 0.0f));	
+			rz = glm::max(-50.0f, glm::min(rz, 0.0f));
+		}
+		else if(ID == UPPER_LEG_RIGHT){
+			rx = glm::max(-90.0f, glm::min(rx, 70.0f));	
+			ry = glm::max(0.0f, glm::min(ry, 80.0f));	
+			rz = glm::max(0.0f, glm::min(rz, 50.0f));
+		}
+		else if(ID == HIP_JOINT){
+			rx = glm::max(-110.0f, glm::min(rx, 40.0f));	
+			ry = glm::max(-50.0f, glm::min(ry, 50.0f));	
+			rz = glm::max(-25.0f, glm::min(rz, 25.0f));
+		}
+		else if(ID == NECK){
+			rx = glm::max(-20.0f, glm::min(rx, 50.0f));	
+			ry = glm::max(-50.0f, glm::min(ry, 50.0f));	
+			rz = glm::max(-30.0f, glm::min(rz, 30.0f));
+		}
+		else if(ID == UPPER_ARM_RIGHT){
+			rx = glm::max(-30.0f, glm::min(rx, 200.0f));	
+			ry = glm::max(-130.0f, glm::min(ry, 50.0f));	
+			rz = glm::max(-40.0f, glm::min(rz, 100.0f));	
+		}
+		else if(ID == UPPER_ARM_LEFT){
+			rx = glm::max(-200.0f, glm::min(rx, 30.0f));	
+			ry = glm::max(-130.0f, glm::min(ry, 50.0f));	
+			rz = glm::max(-100.0f, glm::min(rz, 40.0f));	
+		}
+		else if(ID == ELBOW_LEFT){
+			ry = rx = 0;
+			rz = glm::max(-160.0f, glm::min(rz, -50.0f));
+		}
+		else if(ID == ELBOW_RIGHT){
+			ry = rx = 0;
+			rz = glm::max(50.0f, glm::min(rz, 150.0f));
+		}
+		
+		// else if(){
+
+		// }
+
+
 	}
 
 	void HNode::update_matrices(){
-
+		sanity_check();
 		glm::mat4 tr1 = glm::translate(glm::mat4(1.0f),glm::vec3(px,py,pz));		
 
 		rotation = glm::rotate(tr1, glm::radians(rx), glm::vec3(1.0f,0.0f,0.0f));
@@ -75,6 +125,7 @@ namespace csX75
 		rotation = glm::rotate(rotation, glm::radians(rz), glm::vec3(0.0f,0.0f,1.0f));
 
 		translation = glm::translate(glm::mat4(1.0f),glm::vec3(tx-px,ty-px,tz-px));
+		std::cout<<rx<<" "<<ry<<" "<<rz<<std::endl;
 	}
 
 	void HNode::add_child(HNode* a_child){
@@ -107,6 +158,8 @@ namespace csX75
 		glUniformMatrix4fv(uModelViewMatrix2, 1, GL_FALSE, glm::value_ptr(*ms_mult));
 		glm::mat3 normal_matrix = glm::transpose (glm::inverse(glm::mat3(*ms_mult)));
   		glUniformMatrix3fv(normalMatrix, 1, GL_FALSE, glm::value_ptr(normal_matrix));
+  		//GLuint tex=LoadTexture("images/all.bmp",512,512);
+  		//glBindTexture(GL_TEXTURE_2D, tex);
 		glBindVertexArray (vao);
 		glDrawArrays(GL_TRIANGLES, 0, num_vertices);
 

@@ -2,6 +2,7 @@
 
 	Humanoid::Humanoid(){
 		hip = head = neck = shoulder = torso = up_arm1 = up_arm2 = l_arm1 = l_arm2 = wrist1 = wrist2 = up_leg1 = up_leg2 = l_leg1 = l_leg2 = foot1 = foot2 = saber1 = saber2 = elbow1 = elbow2 = knee1 = knee2 = NULL;
+		hip_joint = NULL;
 	}
 
 	csX75::HNode* Humanoid::create_elem(std::vector <glm::vec4> v_positions, std::vector <glm::vec4> v_colors, std::vector<glm :: vec4> v_normals, int elem){
@@ -12,18 +13,23 @@
 			hip = new csX75::HNode(elem, parent, v_positions.size(), &v_positions[0], &v_colors[0], &v_normals[0], sizeOfvec4*v_positions.size(), sizeOfvec4*v_colors.size(), sizeOfvec4*v_normals.size());
 			curr = hip;
 		}
+		else if(elem == HIP_JOINT){
+			parent = hip;
+			hip_joint = new csX75::HNode(elem, parent, v_positions.size(), &v_positions[0], &v_colors[0], &v_normals[0], sizeOfvec4*v_positions.size(), sizeOfvec4*v_colors.size(), sizeOfvec4*v_normals.size());
+			curr = hip_joint;
+		}
 		else if(elem == TORSO){
 			parent = hip;
 			torso = new csX75::HNode(elem, parent, v_positions.size(), &v_positions[0], &v_colors[0], &v_normals[0], sizeOfvec4*v_positions.size(), sizeOfvec4*v_colors.size(), sizeOfvec4*v_normals.size());
 			curr = torso;
 		}
 		else if(elem == UPPER_LEG_LEFT){
-			parent = torso;
+			parent = hip_joint;
 			up_leg1 = new csX75::HNode(elem, parent, v_positions.size(), &v_positions[0], &v_colors[0], &v_normals[0], sizeOfvec4*v_positions.size(), sizeOfvec4*v_colors.size(), sizeOfvec4*v_normals.size());
 			curr = up_leg1;
 		}
 		else if(elem == UPPER_LEG_RIGHT){
-			parent = torso;
+			parent = hip_joint;
 			up_leg2 = new csX75::HNode(elem, parent, v_positions.size(), &v_positions[0], &v_colors[0], &v_normals[0], sizeOfvec4*v_positions.size(), sizeOfvec4*v_colors.size(), sizeOfvec4*v_normals.size());
 			curr = up_leg2;
 		}
@@ -195,6 +201,9 @@
 		}
 		else if(elem == KNEE_LEFT){
 			return knee1;
+		}
+		else if(elem == HIP_JOINT){
+			return hip_joint;
 		}
 	}
 

@@ -7,7 +7,7 @@
 class Droid{
 public:	
 	static int sizeOfvec4;
-	csX75::HNode *head,*body,*up_leg1,*up_leg2,*l_leg1,*l_leg2, *knee1, *knee2;
+	csX75::HNode *head,*body,*up_leg1,*up_leg2,*l_leg1,*l_leg2, *knee1, *knee2, *wheel1, *wheel2;
 
 	Droid();
 
