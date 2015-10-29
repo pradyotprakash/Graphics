@@ -636,7 +636,9 @@ public:
 			uModelViewMatrix2 = glGetUniformLocation( shaderProgram2, "uModelViewMatrix");
 			normalMatrix =  glGetUniformLocation( shaderProgram2, "normalMatrix");
 			viewMatrix = glGetUniformLocation( shaderProgram2, "viewMatrix");
-			
+			light12 = glGetUniformLocation( shaderProgram2, "light1_on" );
+			light22 = glGetUniformLocation( shaderProgram2, "light2_on" );
+
 			create_humanoid();
 			create_droid();
 			create_spotlight();
@@ -672,6 +674,8 @@ public:
 		glUniform1i(light2, light2_on);
 
 		glUseProgram(shaderProgram2);
+		glUniform1i(light12, light1_on);
+		glUniform1i(light22, light2_on);
 		matrixStack.push_back(view_matrix);
 		matrixStack.push_back(glm::translate(glm::mat4(1.0f),glm::vec3(0.0f,0.0f,-depth)));
 		droid->get_root()->render_tree(depth);

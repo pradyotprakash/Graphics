@@ -40,6 +40,7 @@ GLint light1_on = 1, light2_on = 1;
 GLuint vPosition1, vPosition2, vColor1, vColor2, vNormal2, texCoord1, vTexture2;
 GLuint uModelViewMatrix1, uModelViewMatrix2, normalMatrix, viewMatrix;
 GLuint light1, light2;
+GLuint light12, light22;
 //global matrix stack for hierarchical modelling
 std::vector<glm::mat4> matrixStack;
 

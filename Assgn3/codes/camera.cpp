@@ -32,7 +32,8 @@ void Camera::update_x(GLfloat x_trans, GLfloat x_rot_v){
 	//glm::vec4 temp = glm::vec4(x_up,y_up,z_up,1)*rotation_matrix;
 	//x_up = temp.x/temp.w;y_up = temp.y/temp.w;z_up = temp.z/temp.w;
 	x_pos += x_trans;
-	//x_pos = glm::min(-100.0f, glm::max(x_pos, 100.0f));
+	if(x_pos < -100.0) x_pos = -100.0;
+	if(x_pos > 100.0) x_pos = 100.0;
 	update_matrices();
 }
 
@@ -40,12 +41,18 @@ void Camera::update_y(GLfloat y_trans, GLfloat y_rot_v){
 	y_pos += y_trans;
 	y_rot += y_rot_v;
 
+	if(y_pos < -100.0) y_pos = -100.0;
+	if(y_pos > 100.0) y_pos = 100.0;
+
 	update_matrices();
 }
 
 void Camera::update_z(GLfloat z_trans, GLfloat z_rot_v){
 	z_pos += z_trans;
 	z_rot += z_rot_v;
+
+	if(z_pos < -100.0) z_pos = -100.0;
+	if(z_pos > 100.0) z_pos = 100.0;
 
 	update_matrices();
 }

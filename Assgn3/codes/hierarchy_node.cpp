@@ -176,7 +176,7 @@ namespace csX75
 		glUniformMatrix4fv(uModelViewMatrix2, 1, GL_FALSE, glm::value_ptr(*ms_mult));
 		glm::mat3 normal_matrix = glm::transpose (glm::inverse(glm::mat3(*ms_mult)));
   		glUniformMatrix3fv(normalMatrix, 1, GL_FALSE, glm::value_ptr(normal_matrix));
-  		//GLuint tex=LoadTexture("images/all.bmp",512,512);
+
 		glBindTexture(GL_TEXTURE_2D, tex);
   		
 		glBindVertexArray (vao);

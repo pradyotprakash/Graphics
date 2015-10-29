@@ -115,11 +115,13 @@ namespace csX75
 			if(light1_on == 1)
 				light1_on = 0;
 			else light1_on = 1;
+			std::cout<<"Light 1: "<<light1_on<<std::endl;
 		}
 		else if (key == GLFW_KEY_SLASH && action == GLFW_PRESS){
 			if(light2_on == 1)
 				light2_on = 0;
 			else light2_on = 1;
+			std::cout<<"Light 2: "<<light2_on<<std::endl;
 		}
 		else if ((curr_node->ID == HIP || curr_node->ID == D_TORSO) && key == GLFW_KEY_LEFT && mods == GLFW_MOD_SHIFT)
 			curr_node->dec_ty();
