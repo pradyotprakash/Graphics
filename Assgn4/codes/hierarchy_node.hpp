@@ -20,9 +20,7 @@ namespace csX75	 {
 	// A simple class that represents a node in the hierarchy tree
 	class HNode {
 		//glm::vec4 * vertices;
-		//glm::vec4 * colors;
-		GLfloat tx,ty,tz,rx,ry,rz,px,py,pz;
-		
+		//glm::vec4 * colors;		
 		std::size_t vertex_buffer_size;
 		std::size_t color_buffer_size;
 		std::size_t normal_buffer_size;
@@ -41,6 +39,7 @@ namespace csX75	 {
 
 	  public:
 		int ID;
+		GLfloat tx,ty,tz,rx,ry,rz,px,py,pz;
 		HNode(int id, HNode* a_parent, GLuint num_v, glm::vec4* a_vertices, glm::vec4* a_colours, glm::vec4* a_normals, glm::vec2* a_textures, std::size_t v_size, std::size_t c_size, std::size_t n_size, std::size_t t_size, GLuint tex);
 		//HNode (HNode* , glm::vec4*,  glm::vec4*,GLfloat,GLfloat,GLfloat,GLfloat,GLfloat,GLfloat);
 

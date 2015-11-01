@@ -65,7 +65,7 @@ namespace csX75
 	}
 
 	void HNode::write_tree_to_file(std::ostream& out){
-		out<<tx<<" "<<ty<<" "<<tz<<" "<<rx<<" "<<ry<<" "<<rz<<"\n";
+		out<<float(tx)<<" "<<float(ty)<<" "<<float(tz)<<" "<<float(rx)<<" "<<float(ry)<<" "<<float(rz)<<"\n";
 
 		for(int i=0;i<children.size();i++){
 			children[i]->write_tree_to_file(out);
@@ -73,7 +73,9 @@ namespace csX75
 	}
 
 	void HNode::read_tree_from_file(std::istream& inp){
+		// std::cout<<tx<<" "<<ty<<" "<<tz<<" "<<rx<<" "<<ry<<" "<<rz<<std::endl;
 		inp>>tx>>ty>>tz>>rx>>ry>>rz;
+		// std::cout<<tx<<" "<<ty<<" "<<tz<<" "<<rx<<" "<<ry<<" "<<rz<<std::endl;
 		update_matrices();
 
 		for(int i=0;i<children.size();i++){
@@ -148,8 +150,6 @@ namespace csX75
 			ry = glm::max(-40.0f, glm::min(ry, 40.0f));	
 			rz = glm::max(-50.0f, glm::min(rz, 50.0f));
 		}
-		
-
 	}
 
 	void HNode::update_matrices(){

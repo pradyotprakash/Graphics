@@ -36,6 +36,7 @@ bool solid = true;
 //Enable/Disable perspective view
 bool enable_perspective = true;
 bool record_keyframe = false;
+bool playback = false;
 GLint light1_on = 1, light2_on = 1;
 //Shader program attribs
 GLuint vPosition1, vPosition2, vColor1, vColor2, vNormal2, texCoord1, vTexture2;

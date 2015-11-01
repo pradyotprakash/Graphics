@@ -1,3 +1,4 @@
+#define TORSO_JOINT 0
 #define HIP 1
 #define UPPER_ARM_LEFT 2
 #define UPPER_ARM_RIGHT 3
@@ -22,7 +23,6 @@
 #define KNEE_LEFT 22
 #define KNEE_RIGHT 23
 #define HIP_JOINT 24
-#define TORSO_JOINT 35
 
 #define D_WHEEL_LEFT 25
 #define D_WHEEL_RIGHT 26

@@ -31,6 +31,6 @@ texture: texture.hpp texture.cpp
 main: $(SRCS) $(INCLUDES)
 	g++ $(CPPFLAGS) $(SRCS) -o $(BIN) $(LDFLAGS) $(LIBS)
 	rm -f *~ *.o
-	./main
+	#./main
 clean:
 	rm -f *~ *.o $(BIN)

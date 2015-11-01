@@ -1,7 +1,13 @@
 #include "starwars.hpp"
 #include "texture.hpp"
+
 #define PI 3.1415926
 
+struct animation_group{
+	Humanoid* h;
+	Camera* c;
+	int light1, light2;
+};
 
 class Starwars{
 public:
@@ -301,7 +307,7 @@ public:
 }
 
 
-	void create_humanoid(){
+	void create_humanoid(Humanoid* humanoid){
 
 		std::vector<glm::vec4> v_positions, v_colors, v_normals;
 		std::vector<glm::vec2> v_textures;
@@ -436,7 +442,7 @@ public:
 		curr_node = humanoid->get_root();
 	}
 
-	void create_droid(){
+	void create_droid(Droid* droid){
 
 		std::vector<glm::vec4> v_positions, v_colors, v_normals;
 		std::vector<glm::vec2> v_textures;
@@ -639,8 +645,8 @@ public:
 			light12 = glGetUniformLocation( shaderProgram2, "light1_on" );
 			light22 = glGetUniformLocation( shaderProgram2, "light2_on" );
 
-			create_humanoid();
-			create_droid();
+			create_humanoid(humanoid);
+			create_droid(droid);
 			create_spotlight();
 		}
 	}
@@ -691,15 +697,67 @@ public:
 	}
 
 	void record(){
-		std::cout<<"Writing to keyframes.txt\n";
+		std::cout<<"Initiating write to keyframes.txt\n";
 		std::ofstream out;
 		out.open("keyframes.txt", std::ios_base::app);
 
+		out<<"k\n";
 		out<<light1_on<<" "<<light2_on<<std::endl;
 		camera->write_params(out);
 		humanoid->get_root()->write_tree_to_file(out);
-		out<<"\n\n";
+
 		std::cout<<"Written to keyframes.txt\n";
+	}
+
+	void read_and_preprocess_keyframe_file(std::vector<animation_group> &animate){
+
+		std::string filename = "keyframes.txt", s;
+		std::ifstream inp(filename.c_str());
+			
+		while(inp>>s){
+			animation_group ag;
+			ag.h = new Humanoid();
+			create_humanoid(ag.h);
+
+			ag.c = new Camera();
+			
+			inp>>ag.light1>>ag.light2;
+			ag.c->read_params(inp);
+			ag.h->get_root()->read_tree_from_file(inp);
+
+			animate.push_back(ag);
+		}
+	}
+
+	void playback_keyframes(int frames){
+		
+		std::vector<animation_group> animate;
+
+		double wait_time = 1.0/frames;
+		double prev_time = 0.0;
+		
+		std::cout<<"Reading keyframes file"<<std::endl;
+		read_and_preprocess_keyframe_file(animate);
+		std::cout<<"Keyframe reading done. Number of states loaded: "<<animate.size()<<std::endl;
+		Humanoid *h1, *h2;
+
+		std::cout<<"Creating animation"<<std::endl;
+		glfwSetTime(0.0);
+
+		for(int i=0;i<animate.size()-1;++i){
+			h1 = animate[i].h;
+			h2 = animate[i+1].h;
+
+			for(int j=0;j<=frames;++j){
+				humanoid->interpolate(h1, h2, j, frames);
+				while(glfwGetTime() - prev_time < wait_time){
+					renderGL();
+				}
+				prev_time = glfwGetTime();
+			}
+		}
+		std::cout<<"Animation done!"<<std::endl;
+		playback = false;
 	}
 
 };
@@ -772,8 +830,14 @@ int main(int argc, char** argv)
 			record_keyframe = false;
 			starwars->record();
 		}
-		// Render here
-		starwars->renderGL();
+
+		if(playback){
+			starwars->playback_keyframes(30);
+		}
+		else{
+			// Render here
+			starwars->renderGL();
+		}
 
 		// Swap front and back buffers
 		glfwSwapBuffers(window);
