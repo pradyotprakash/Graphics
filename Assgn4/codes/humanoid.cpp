@@ -219,40 +219,6 @@
 		return hip;
 	}
 
-	void Humanoid::interpolate(Humanoid* h1, Humanoid* h2, std::vector<Humanoid*> h, int frames){
-
-		int tx, ty, tz, rx, ry, rz, a, b;
-		
-		for(int j=0;j<=frames;++j){
-
-			for(int i=0;i<25;++i){
-				csX75::HNode *n1, *n2;
-				n1 = h1->get_current(i);
-				n2 = h2->get_current(i);
-
-				a = n1->tx; b = n2->tx;
-				tx = a + (b-a)*j/frames;
-
-				a = n1->ty; b = n2->ty;
-				ty = a + (b-a)*j/frames;
-
-				a = n1->tz; b = n2->tz;
-				tz = a + (b-a)*j/frames;
-
-				a = n1->rx; b = n2->rx;
-				rx = a + (b-a)*j/frames;
-
-				a = n1->ry; b = n2->ry;
-				ry = a + (b-a)*j/frames;
-
-				a = n1->rz; b = n2->rz;
-				rz = a + (b-a)*j/frames;
-
-				h[j]->get_current(i)->change_parameters(tx, ty, tz, rx, ry, rz);
-			}
-		}
-	}
-
 	void Humanoid::interpolate(Humanoid* h1, Humanoid* h2, int j, int frames){
 
 		int tx, ty, tz, rx, ry, rz, a, b;

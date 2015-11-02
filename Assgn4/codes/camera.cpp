@@ -66,6 +66,18 @@ void Camera::update_z(GLfloat z_trans, GLfloat z_rot_v){
 	update_matrices();
 }
 
+void Camera::show(){
+	std::cout<<x_pos<<" "<<y_pos<<" "<<z_pos<<std::endl;
+}
+
+void Camera::update_params(glm::vec3 pos){
+	x_pos = pos.x;
+	y_pos = pos.y;
+	z_pos = pos.z;
+
+	update_matrices();
+}
+
 void Camera::update_matrices(){
 
 	rotation_matrix = glm::rotate(glm::mat4(1.0f), glm::radians(x_rot), glm::vec3(1.0f,0.0f,0.0f));

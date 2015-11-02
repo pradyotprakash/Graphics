@@ -31,6 +31,9 @@ public:
 	bool flag;
 	GLfloat depth;
 
+	std::vector<animation_group> animate;
+	std::vector<unsigned long long> factorial;
+
 	Starwars(){
 		humanoid = new Humanoid();
 		droid = new Droid();
@@ -705,14 +708,14 @@ public:
 		out<<light1_on<<" "<<light2_on<<std::endl;
 		camera->write_params(out);
 		humanoid->get_root()->write_tree_to_file(out);
-		out<<"Droid"<<std::endl;
 		droid->get_root()->write_tree_to_file(out);
 
 		std::cout<<"Written to keyframes.txt\n";
 	}
 
-	void read_and_preprocess_keyframe_file(std::vector<animation_group> &animate){
+	void read_and_preprocess_keyframe_file(){
 
+		animate.clear();
 		std::string filename = "keyframes.txt", s;
 		std::ifstream inp(filename.c_str());
 		
@@ -729,53 +732,83 @@ public:
 			inp>>ag.light1>>ag.light2;
 			ag.c->read_params(inp);
 			ag.h->get_root()->read_tree_from_file(inp);
-			inp>>s;
 			std::cout<<s<<std::endl;
 			ag.d->get_root()->read_tree_from_file(inp);
 
 			animate.push_back(ag);
 		}
-		// animate.push_back(ag);
+	}
+
+	void compute_factorials(int n){
+		factorial.clear();
+
+		std::vector<unsigned long long> f;
+		unsigned long long val = 1;
+		f.push_back(val);
+		f.push_back(val);
+
+		for(int i=2;i<=n;++i){
+			val *= i;
+			f.push_back(val);
+		}
+
+		for(int i=0;i<=n;++i){
+			factorial.push_back(f[n]/(f[i] * f[n-i]));
+		}
+	}
+
+	glm::vec3 camera_position(int n, double t){
+		double x = 0.0, y = 0.0, z = 0.0;
+		
+		for(int i=0;i<=n;++i){
+			Camera* c = animate[i].c;
+			double d = pow(t, i)*pow(1-t,n-i)*factorial[i];
+			x += d*c->x_pos;
+			y += d*c->y_pos;
+			z += d*c->z_pos;
+		}
+
+		return glm::vec3(x, y, z);;
 	}
 
 	void playback_keyframes(int frames, GLFWwindow* window){
 		
-		std::vector<animation_group> animate;
+		std::vector<int> factorial;
 
 		double wait_time = 1.0/double(frames);
-		double prev_time = 0.0;
+		double camera_res;
+		double prev_time = 0.0, t = 0.0;
 		
 		std::cout<<"Reading keyframes file"<<std::endl;
-		read_and_preprocess_keyframe_file(animate);
+		read_and_preprocess_keyframe_file();
 		std::cout<<"Keyframe reading done. Number of states loaded: "<<animate.size()<<std::endl;
+		
+		int n = animate.size()-1;
+		compute_factorials(n);
+		camera_res = 1.0/((n+1)*(frames+1));
 		Humanoid *h1, *h2;
 		Droid *d1, *d2;
-		Camera *c1, *c2;
 	
 		std::cout<<"Creating animation"<<std::endl;
 		glfwSetTime(0.0);
 
-		for(int i=0;i<animate.size()-1;++i){
+		for(int i=0;i<n;++i){
 			h1 = animate[i].h;
 			h2 = animate[i+1].h;
 
 			d1 = animate[i].d;
 			d2 = animate[i+1].d;
 
-			c1 = animate[i].c;
-			c2 = animate[i+1].c;
-
-			// preprocess bezier curve
-
 			for(int j=0;j<=frames;++j){
 				humanoid->interpolate(h1, h2, j, frames);
 				droid->interpolate(d1, d2, j, frames);
-				
+				camera->update_params(pos);
 				while(glfwGetTime() - prev_time < wait_time){
 					renderGL();
 					glfwSwapBuffers(window);
 					glfwPollEvents();
 				}
+				t += camera_res;
 				prev_time = glfwGetTime();
 			}
 		}

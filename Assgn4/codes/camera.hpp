@@ -4,6 +4,7 @@
 #include <GL/glew.h>
 
 #include <fstream>
+#include <iostream>
 
 class Camera{
 public:
@@ -26,6 +27,8 @@ public:
 	void update_matrices();
 	void write_params(std::ostream&);
 	void read_params(std::istream&);
+	void update_params(glm::vec3 pos);
+	void show();
 
 	glm::mat4 get_lookat_matrix();
 };
