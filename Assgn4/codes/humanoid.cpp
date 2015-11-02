@@ -280,7 +280,12 @@
 			a = n1->rz; b = n2->rz;
 			rz = a + (b-a)*j/frames;
 
-			this->get_current(i)->change_parameters(tx, ty, tz, rx, ry, rz);
+			if(i == HIP){
+				this->get_current(i)->change_parameters(tx, ty, tz, rx, ry, rz);
+			}
+			else{
+				this->get_current(i)->change_parameters(n1->tx, n1->ty, n1->tz, rx, ry, rz);
+			}
 		}
 	}
 

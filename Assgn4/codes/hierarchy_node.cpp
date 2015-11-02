@@ -73,13 +73,13 @@ namespace csX75
 	}
 
 	void HNode::read_tree_from_file(std::istream& inp){
-		// std::cout<<tx<<" "<<ty<<" "<<tz<<" "<<rx<<" "<<ry<<" "<<rz<<std::endl;
 		inp>>tx>>ty>>tz>>rx>>ry>>rz;
-		// std::cout<<tx<<" "<<ty<<" "<<tz<<" "<<rx<<" "<<ry<<" "<<rz<<std::endl;
+
 		update_matrices();
 
 		for(int i=0;i<children.size();i++){
 			children[i]->read_tree_from_file(inp);
+
 		}
 	}	
 

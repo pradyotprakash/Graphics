@@ -31,7 +31,6 @@ void Camera::write_params(std::ostream &out){
 
 void Camera::read_params(std::istream &inp){
 	inp>>x_pos>>y_pos>>z_pos>>x_rot>>y_rot>>z_rot>>x_up>>y_up>>z_up;
-	// std::cout<<x_pos<<" "<<y_pos<<" "<<z_pos<<" "<<x_rot<<" "<<y_rot<<" "<<z_rot<<" "<<x_up<<" "<<y_up<<" "<<z_up<<"\n";
 }
 
 void Camera::update_x(GLfloat x_trans, GLfloat x_rot_v){

@@ -4,6 +4,7 @@
 #define PI 3.1415926
 
 struct animation_group{
+	Droid* d;
 	Humanoid* h;
 	Camera* c;
 	int light1, light2;
@@ -508,7 +509,6 @@ public:
 		curr_node = droid->get_root();
 	}
 
-
 	void create_static_object(GLfloat *a_vertices){
 
 		GLuint vao, vbo;
@@ -684,8 +684,8 @@ public:
 		glUniform1i(light22, light2_on);
 		matrixStack.push_back(view_matrix);
 		matrixStack.push_back(glm::translate(glm::mat4(1.0f),glm::vec3(0.0f,0.0f,-depth)));
-		droid->get_root()->render_tree(depth);
 		humanoid->get_root()->render_tree(depth);
+		droid->get_root()->render_tree(depth);
 		spot->render_tree(depth);
 
 		glm::mat4 skybox_view_matrix = glm::mat4(glm::mat3(lookat_matrix));
@@ -697,7 +697,7 @@ public:
 	}
 
 	void record(){
-		std::cout<<"Initiating write to keyframes.txt\n";
+		std::cout<<"Initiating write to keyframes.txt"<<std::endl;
 		std::ofstream out;
 		out.open("keyframes.txt", std::ios_base::app);
 
@@ -705,6 +705,8 @@ public:
 		out<<light1_on<<" "<<light2_on<<std::endl;
 		camera->write_params(out);
 		humanoid->get_root()->write_tree_to_file(out);
+		out<<"Droid"<<std::endl;
+		droid->get_root()->write_tree_to_file(out);
 
 		std::cout<<"Written to keyframes.txt\n";
 	}
@@ -713,34 +715,43 @@ public:
 
 		std::string filename = "keyframes.txt", s;
 		std::ifstream inp(filename.c_str());
-			
+		
+		animation_group ag;
 		while(inp>>s){
-			animation_group ag;
+			
 			ag.h = new Humanoid();
 			create_humanoid(ag.h);
+			ag.d = new Droid();
+			create_droid(ag.d);
 
 			ag.c = new Camera();
 			
 			inp>>ag.light1>>ag.light2;
 			ag.c->read_params(inp);
 			ag.h->get_root()->read_tree_from_file(inp);
+			inp>>s;
+			std::cout<<s<<std::endl;
+			ag.d->get_root()->read_tree_from_file(inp);
 
 			animate.push_back(ag);
 		}
+		// animate.push_back(ag);
 	}
 
-	void playback_keyframes(int frames){
+	void playback_keyframes(int frames, GLFWwindow* window){
 		
 		std::vector<animation_group> animate;
 
-		double wait_time = 1.0/frames;
+		double wait_time = 1.0/double(frames);
 		double prev_time = 0.0;
 		
 		std::cout<<"Reading keyframes file"<<std::endl;
 		read_and_preprocess_keyframe_file(animate);
 		std::cout<<"Keyframe reading done. Number of states loaded: "<<animate.size()<<std::endl;
 		Humanoid *h1, *h2;
-
+		Droid *d1, *d2;
+		Camera *c1, *c2;
+	
 		std::cout<<"Creating animation"<<std::endl;
 		glfwSetTime(0.0);
 
@@ -748,10 +759,22 @@ public:
 			h1 = animate[i].h;
 			h2 = animate[i+1].h;
 
+			d1 = animate[i].d;
+			d2 = animate[i+1].d;
+
+			c1 = animate[i].c;
+			c2 = animate[i+1].c;
+
+			// preprocess bezier curve
+
 			for(int j=0;j<=frames;++j){
 				humanoid->interpolate(h1, h2, j, frames);
+				droid->interpolate(d1, d2, j, frames);
+				
 				while(glfwGetTime() - prev_time < wait_time){
 					renderGL();
+					glfwSwapBuffers(window);
+					glfwPollEvents();
 				}
 				prev_time = glfwGetTime();
 			}
@@ -832,18 +855,14 @@ int main(int argc, char** argv)
 		}
 
 		if(playback){
-			starwars->playback_keyframes(30);
+			starwars->playback_keyframes(30, window);
 		}
 		else{
 			// Render here
 			starwars->renderGL();
+			glfwSwapBuffers(window);
+			glfwPollEvents();
 		}
-
-		// Swap front and back buffers
-		glfwSwapBuffers(window);
-
-		// Poll for and process events
-		glfwPollEvents();
 	}
 
 	glfwTerminate();

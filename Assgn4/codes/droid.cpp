@@ -98,5 +98,41 @@
 		return body;
 	}
 
+	void Droid::interpolate(Droid* d1, Droid* d2, int j, int frames){
+		
+		int tx, ty, tz, rx, ry, rz, a, b;
+		
+		for(int i=25;i<35;++i){
+			csX75::HNode *n1, *n2;
+			n1 = d1->get_current(i);
+			n2 = d2->get_current(i);
+
+			a = n1->tx; b = n2->tx;
+			tx = a + (b-a)*j/frames;
+
+			a = n1->ty; b = n2->ty;
+			ty = a + (b-a)*j/frames;
+
+			a = n1->tz; b = n2->tz;
+			tz = a + (b-a)*j/frames;
+
+			a = n1->rx; b = n2->rx;
+			rx = a + (b-a)*j/frames;
+
+			a = n1->ry; b = n2->ry;
+			ry = a + (b-a)*j/frames;
+
+			a = n1->rz; b = n2->rz;
+			rz = a + (b-a)*j/frames;
+
+			if(i == D_TORSO){
+				this->get_current(i)->change_parameters(tx, ty, tz, rx, ry, rz);
+			}
+			else{
+				this->get_current(i)->change_parameters(n1->tx, n1->ty, n1->tz, rx, ry, rz);
+			}
+		}
+	}
+
 	int Droid::sizeOfvec4 = sizeof(glm::vec4);
 	int Droid::sizeOfvec2 = sizeof(glm::vec2);

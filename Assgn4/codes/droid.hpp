@@ -16,4 +16,5 @@ public:
 	csX75::HNode* get_current(int elem);
 
 	csX75::HNode* get_root();
+	void interpolate(Droid* d1, Droid* d2, int j, int frames);
 };
