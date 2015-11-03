@@ -221,7 +221,7 @@
 
 	void Humanoid::interpolate(Humanoid* h1, Humanoid* h2, int j, int frames){
 
-		int tx, ty, tz, rx, ry, rz, a, b;
+		GLfloat tx, ty, tz, rx, ry, rz, a, b;
 		
 		for(int i=0;i<25;++i){
 			csX75::HNode *n1, *n2;

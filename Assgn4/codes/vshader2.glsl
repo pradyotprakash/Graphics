@@ -9,7 +9,7 @@ out vec3 normal;
 out vec4 eye;
 out vec4 vPosition1;
 
-varying vec2 tex;
+out vec2 tex;
 uniform mat4 uModelViewMatrix;
 uniform mat3 normalMatrix;
 uniform mat4 viewMatrix;

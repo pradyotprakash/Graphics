@@ -788,7 +788,8 @@ public:
 		camera_res = 1.0/((n+1)*(frames+1));
 		Humanoid *h1, *h2;
 		Droid *d1, *d2;
-	
+		Camera *c1;
+
 		std::cout<<"Creating animation"<<std::endl;
 		glfwSetTime(0.0);
 
@@ -798,6 +799,9 @@ public:
 
 			d1 = animate[i].d;
 			d2 = animate[i+1].d;
+
+			c1 = animate[i].c;
+			glm::vec3 pos = glm::vec3(c1->x_pos,c1->y_pos,c1->z_pos);
 
 			for(int j=0;j<=frames;++j){
 				humanoid->interpolate(h1, h2, j, frames);

@@ -26,6 +26,12 @@ Camera::Camera(){
 }
 
 void Camera::write_params(std::ostream &out){
+	rotation_matrix = glm::rotate(glm::mat4(1.0f), glm::radians(x_rot), glm::vec3(1.0f,0.0f,0.0f));
+	rotation_matrix = glm::rotate(rotation_matrix, glm::radians(y_rot), glm::vec3(0.0f,1.0f,0.0f));
+	rotation_matrix = glm::rotate(rotation_matrix, glm::radians(z_rot), glm::vec3(0.0f,0.0f,1.0f));
+
+	glm::vec4 pos_matrix = glm::vec4(x_pos, y_pos, z_pos, 1.0)*rotation_matrix;
+	
 	out<<x_pos<<" "<<y_pos<<" "<<z_pos<<" "<<x_rot<<" "<<y_rot<<" "<<z_rot<<" "<<x_up<<" "<<y_up<<" "<<z_up<<"\n";
 }
 
