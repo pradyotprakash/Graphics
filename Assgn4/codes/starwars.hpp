@@ -29,6 +29,9 @@ GLfloat c_xpos = 0.0, c_ypos = 0.0, c_zpos = 2.0;
 GLfloat c_up_x = 0.0, c_up_y = 1.0, c_up_z = 0.0;
 GLfloat c_xrot=0.0,c_yrot=0.0,c_zrot=0.0;
 
+int SCREEN_WIDTH = 1000;
+int SCREEN_HEIGHT = 750;
+unsigned int framenum = 0;
 //Running variable to toggle culling on/off
 bool enable_culling = true;
 //Running variable to toggle wireframe/solid modelling
@@ -37,6 +40,7 @@ bool solid = true;
 bool enable_perspective = true;
 bool record_keyframe = false;
 bool playback = false;
+bool recording = false;
 GLint light1_on = 1, light2_on = 1;
 //Shader program attribs
 GLuint vPosition1, vPosition2, vColor1, vColor2, vNormal2, texCoord1, vTexture2;

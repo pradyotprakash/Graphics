@@ -820,6 +820,28 @@ public:
 		playback = false;
 	}
 
+	void capture_frame(unsigned int framenum){
+		// global pointer float *pRGB
+		unsigned char *pRGB;
+		pRGB = new unsigned char [3 * (SCREEN_WIDTH+1) * (SCREEN_HEIGHT+1) ];
+
+		glReadBuffer(GL_BACK);
+
+		glPixelStoref(GL_PACK_ALIGNMENT, 1);//for word allignment
+
+		glReadPixels(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, GL_RGB, GL_UNSIGNED_BYTE, pRGB);
+		char filename[200];
+		sprintf(filename,"./frames/frame_%04d.ppm",framenum);
+		std::ofstream out(filename, std::ios::out);
+		out<<"P6"<<std::endl;
+		out<<SCREEN_WIDTH<<" "<<SCREEN_HEIGHT<<" 255"<<std::endl;
+		out.write(reinterpret_cast<char const *>(pRGB), (3 * (SCREEN_WIDTH+1) * (SCREEN_HEIGHT+1)) * sizeof(int));
+		out.close();
+
+		//function to store pRGB in a file named count
+		delete pRGB;
+	}
+
 };
 
 int main(int argc, char** argv)
@@ -885,6 +907,10 @@ int main(int argc, char** argv)
 	// Loop until the user closes the window
 	while (glfwWindowShouldClose(window) == 0)
 	{
+
+		if(recording){
+			starwars->capture_frame(framenum++);
+		}
 
 		if(record_keyframe){
 			record_keyframe = false;

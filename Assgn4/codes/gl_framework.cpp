@@ -9,7 +9,7 @@ extern Humanoid* humanoid;
 extern Droid* droid;
 extern csX75::HNode* curr_node;
 extern Camera *camera;
-extern bool enable_perspective, record_keyframe, playback;
+extern bool enable_perspective, record_keyframe, playback, recording;
 extern GLint light1_on, light2_on;
 namespace csX75
 {
@@ -50,6 +50,9 @@ namespace csX75
 		}
 		else if(key == GLFW_KEY_N && action == GLFW_PRESS){
 			playback = !playback;
+		}
+		else if(key == GLFW_KEY_R && action == GLFW_PRESS){
+			recording = !recording;
 		}
 		else if (!playback && key == GLFW_KEY_Z && action == GLFW_PRESS){
 			curr_node = humanoid->get_current(TORSO_JOINT);
