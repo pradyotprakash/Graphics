@@ -697,6 +697,10 @@ public:
 		for(int i=0;i<vao_array.size();++i){
 			draw_buffer(i);
 		}
+
+		if(recording){
+			capture_frame(framenum++);
+		}
 	}
 
 	void record(){
@@ -732,11 +736,12 @@ public:
 			inp>>ag.light1>>ag.light2;
 			ag.c->read_params(inp);
 			ag.h->get_root()->read_tree_from_file(inp);
-			std::cout<<s<<std::endl;
 			ag.d->get_root()->read_tree_from_file(inp);
 
 			animate.push_back(ag);
 		}
+		animate.push_back(animate[animate.size()-1]);
+
 	}
 
 	void compute_factorials(int n){
@@ -788,7 +793,6 @@ public:
 		camera_res = 1.0/((n+1)*(frames+1));
 		Humanoid *h1, *h2;
 		Droid *d1, *d2;
-		Camera *c1;
 
 		std::cout<<"Creating animation"<<std::endl;
 		glfwSetTime(0.0);
@@ -800,13 +804,13 @@ public:
 			d1 = animate[i].d;
 			d2 = animate[i+1].d;
 
-			c1 = animate[i].c;
-			glm::vec3 pos = glm::vec3(c1->x_pos,c1->y_pos,c1->z_pos);
+			light1_on = animate[i].light1;
+			light2_on = animate[i].light2;
 
 			for(int j=0;j<=frames;++j){
 				humanoid->interpolate(h1, h2, j, frames);
 				droid->interpolate(d1, d2, j, frames);
-				camera->update_params(pos);
+				camera->update_params(camera_position(n, t));
 				while(glfwGetTime() - prev_time < wait_time){
 					renderGL();
 					glfwSwapBuffers(window);
@@ -907,10 +911,6 @@ int main(int argc, char** argv)
 	// Loop until the user closes the window
 	while (glfwWindowShouldClose(window) == 0)
 	{
-
-		if(recording){
-			starwars->capture_frame(framenum++);
-		}
 
 		if(record_keyframe){
 			record_keyframe = false;

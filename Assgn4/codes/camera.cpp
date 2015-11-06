@@ -30,9 +30,9 @@ void Camera::write_params(std::ostream &out){
 	rotation_matrix = glm::rotate(rotation_matrix, glm::radians(y_rot), glm::vec3(0.0f,1.0f,0.0f));
 	rotation_matrix = glm::rotate(rotation_matrix, glm::radians(z_rot), glm::vec3(0.0f,0.0f,1.0f));
 
-	glm::vec4 pos_matrix = glm::vec4(x_pos, y_pos, z_pos, 1.0)*rotation_matrix;
+	glm::vec3 pos_matrix = glm::vec3(glm::vec4(x_pos, y_pos, z_pos, 1.0)*rotation_matrix);
 	
-	out<<x_pos<<" "<<y_pos<<" "<<z_pos<<" "<<x_rot<<" "<<y_rot<<" "<<z_rot<<" "<<x_up<<" "<<y_up<<" "<<z_up<<"\n";
+	out<<pos_matrix.x<<" "<<pos_matrix.y<<" "<<pos_matrix.z<<" "<<x_rot<<" "<<y_rot<<" "<<z_rot<<" "<<x_up<<" "<<y_up<<" "<<z_up<<"\n";
 }
 
 void Camera::read_params(std::istream &inp){
@@ -41,34 +41,45 @@ void Camera::read_params(std::istream &inp){
 
 void Camera::update_x(GLfloat x_trans, GLfloat x_rot_v){
 	
-	x_rot += x_rot_v;
-	//update_matrices();
-
-	//glm::vec4 temp = glm::vec4(x_up,y_up,z_up,1)*rotation_matrix;
-	//x_up = temp.x/temp.w;y_up = temp.y/temp.w;z_up = temp.z/temp.w;
-	x_pos += x_trans;
 	if(x_pos < -100.0) x_pos = -100.0;
 	if(x_pos > 100.0) x_pos = 100.0;
+
+	x_rot += x_rot_v;
+	update_matrices();
+
+	// glm::vec4 temp = glm::vec4(x_up,y_up,z_up,1.0)*rotation_matrix;
+	// x_up = temp.x/temp.w;y_up = temp.y/temp.w;z_up = temp.z/temp.w;
+	x_pos += x_trans;
+	
 	update_matrices();
 }
 
 void Camera::update_y(GLfloat y_trans, GLfloat y_rot_v){
-	y_pos += y_trans;
-	y_rot += y_rot_v;
-
+	
 	if(y_pos < -100.0) y_pos = -100.0;
 	if(y_pos > 100.0) y_pos = 100.0;
+
+	y_rot += y_rot_v;
+	update_matrices();
+
+	// glm::vec4 temp = glm::vec4(x_up,y_up,z_up,1.0)*rotation_matrix;
+	// x_up = temp.x/temp.w;y_up = temp.y/temp.w;z_up = temp.z/temp.w;
+	y_pos += y_trans;
 
 	update_matrices();
 }
 
 void Camera::update_z(GLfloat z_trans, GLfloat z_rot_v){
-	z_pos += z_trans;
-	z_rot += z_rot_v;
-
 	if(z_pos < -100.0) z_pos = -100.0;
 	if(z_pos > 100.0) z_pos = 100.0;
 
+	z_rot += z_rot_v;
+	update_matrices();
+
+	// glm::vec4 temp = glm::vec4(x_up,y_up,z_up,1.0)*rotation_matrix;
+	// x_up = temp.x/temp.w;y_up = temp.y/temp.w;z_up = temp.z/temp.w;
+	z_pos += z_trans;
+	
 	update_matrices();
 }
 

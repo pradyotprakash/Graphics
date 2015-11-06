@@ -20,9 +20,9 @@ void main () {
     vec4 texColor = texture2D(texture, tex);
 
     vec4 spec = vec4(0.0, 0.0, 0.0, 1.0);
-    vec4 ambient = vec4(0.3, 0.3, 1.0, 1.0);
+    vec4 ambient = vec4(0.3, 0.3, 0.3, 1.0);
     float intensity = 0.0;
-    float shininess = 0.05;
+    float shininess = 0.1;
    
         if(light1_on != 0) {
             float myDot = dot(normalize(vec3(lightPos1 - vPosition1)), normalize(normal));
