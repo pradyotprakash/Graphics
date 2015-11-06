@@ -9,7 +9,7 @@ uniform mat4 viewMatrix;
 uniform mat3 normalMatrix;
 uniform mat4 uModelViewMatrix;
 uniform sampler2D texture;
-varying vec2 tex;
+in vec2 tex;
 uniform int light1_on, light2_on;
 
 void main () 
